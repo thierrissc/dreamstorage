@@ -48,14 +48,18 @@ import { Product } from '../../models/inventory.models';
           </svg>
         </div>
         <div class="banner-content">
-          <div class="banner-title">Atenção Necessária: Itens Críticos de Estoque</div>
+          <div class="banner-title">Atencao Necessaria: Itens Criticos de Estoque</div>
           <div class="banner-text">
             Existem <strong>{{ summary()?.out_of_stock_count }} itens zerados</strong> e 
-            <strong>{{ summary()?.low_stock_count }} itens abaixo do estoque mínimo</strong>.
+            <strong>{{ summary()?.low_stock_count }} itens abaixo do estoque minimo</strong>.
           </div>
         </div>
-        <a routerLink="/produtos" [queryParams]="{ status: 'LOW_STOCK' }" class="btn btn-sm btn-danger">
-          Ver Itens Críticos →
+        <a routerLink="/produtos" [queryParams]="{ status: 'LOW_STOCK' }" class="btn btn-sm btn-danger btn-banner-link">
+          <span>Ver Itens Criticos</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </a>
       </div>
 
@@ -64,7 +68,7 @@ import { Product } from '../../models/inventory.models';
         <!-- Metric 1: Valuation -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Valor de Custo do Inventário</span>
+            <span class="metric-label">Valor de Custo do Inventario</span>
             <div class="metric-icon-bubble royal-bubble">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"></line>
@@ -83,7 +87,7 @@ import { Product } from '../../models/inventory.models';
         <!-- Metric 2: Total Units -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Unidades em Depósito</span>
+            <span class="metric-label">Unidades em Deposito</span>
             <div class="metric-icon-bubble cream-bubble">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -94,14 +98,14 @@ import { Product } from '../../models/inventory.models';
             {{ summary()?.total_stock_units | number }} <span class="metric-unit">unidades</span>
           </div>
           <div class="metric-footer">
-            <span class="metric-sub-text">Distribuídas em <strong>{{ summary()?.total_products }} produtos</strong> cadastrados</span>
+            <span class="metric-sub-text">Distribuidas em <strong>{{ summary()?.total_products }} produtos</strong> cadastrados</span>
           </div>
         </div>
 
         <!-- Metric 3: Critical Products -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Índice de Ruptura</span>
+            <span class="metric-label">Indice de Ruptura</span>
             <div class="metric-icon-bubble warn-bubble">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -114,14 +118,14 @@ import { Product } from '../../models/inventory.models';
             {{ summary()?.out_of_stock_count }} <span class="metric-unit">esgotados</span>
           </div>
           <div class="metric-footer">
-            <span class="metric-sub-text"><strong>{{ summary()?.low_stock_count }}</strong> itens em nível crítico de ressuprimento</span>
+            <span class="metric-sub-text"><strong>{{ summary()?.low_stock_count }}</strong> itens em nivel critico de ressuprimento</span>
           </div>
         </div>
 
         <!-- Metric 4: Monthly Flow -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Movimentações no Mês</span>
+            <span class="metric-label">Movimentacoes no Mes</span>
             <div class="metric-icon-bubble emerald-bubble">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
@@ -133,7 +137,7 @@ import { Product } from '../../models/inventory.models';
             +{{ summary()?.month_in_units }} / -{{ summary()?.month_out_units }}
           </div>
           <div class="metric-footer">
-            <span class="metric-sub-highlight">+{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) }} saldo líquido</span>
+            <span class="metric-sub-highlight">+{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) }} saldo liquido</span>
           </div>
         </div>
       </div>
@@ -146,10 +150,16 @@ import { Product } from '../../models/inventory.models';
           <div class="liquid-glass-card section-card">
             <div class="section-card-header">
               <div>
-                <h2 class="section-title">Distribuição por Categoria</h2>
-                <span class="section-subtitle">Ocupação e densidade de inventário</span>
+                <h2 class="section-title">Distribuicao por Categoria</h2>
+                <span class="section-subtitle">Ocupacao e densidade de inventario</span>
               </div>
-              <a routerLink="/categorias" class="btn-link-cream">Gerenciar →</a>
+              <a routerLink="/categorias" class="btn-link-cream">
+                <span>Gerenciar</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
             </div>
 
             <div class="category-bars">
@@ -179,14 +189,19 @@ import { Product } from '../../models/inventory.models';
           <div class="liquid-glass-card section-card quick-action-card">
             <div class="section-card-header">
               <div>
-                <h2 class="section-title">Ações Operacionais Rápidas</h2>
+                <h2 class="section-title">Acoes Operacionais Rapidas</h2>
                 <span class="section-subtitle">Registros imediatos de auditoria</span>
               </div>
             </div>
 
             <div class="quick-buttons-row">
               <button class="quick-btn in-btn" (click)="openQuickModal('IN')">
-                <div class="quick-btn-icon">↓</div>
+                <div class="quick-btn-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <polyline points="19 12 12 19 5 12"></polyline>
+                  </svg>
+                </div>
                 <div class="quick-btn-text">
                   <strong>Entrada de Mercadoria</strong>
                   <span>Compra / Recebimento</span>
@@ -194,10 +209,15 @@ import { Product } from '../../models/inventory.models';
               </button>
 
               <button class="quick-btn out-btn" (click)="openQuickModal('OUT')">
-                <div class="quick-btn-icon">↑</div>
+                <div class="quick-btn-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                    <polyline points="5 12 12 5 19 12"></polyline>
+                  </svg>
+                </div>
                 <div class="quick-btn-text">
-                  <strong>Saída de Estoque</strong>
-                  <span>Venda / Expedição</span>
+                  <strong>Saida de Estoque</strong>
+                  <span>Venda / Expedicao</span>
                 </div>
               </button>
             </div>
@@ -209,10 +229,16 @@ import { Product } from '../../models/inventory.models';
           <div class="liquid-glass-card section-card">
             <div class="section-card-header">
               <div>
-                <h2 class="section-title">Últimas Movimentações</h2>
+                <h2 class="section-title">Ultimas Movimentacoes</h2>
                 <span class="section-subtitle">Rastreabilidade e auditoria em tempo real</span>
               </div>
-              <a routerLink="/movimentacoes" class="btn-link-cream">Ver histórico completo →</a>
+              <a routerLink="/movimentacoes" class="btn-link-cream">
+                <span>Ver historico completo</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
             </div>
 
             <div class="table-responsive">
@@ -238,7 +264,7 @@ import { Product } from '../../models/inventory.models';
                           'badge-category': m.movement_type === 'ADJUST'
                         }"
                       >
-                        {{ m.movement_type === 'IN' ? 'ENTRADA' : (m.movement_type === 'OUT' ? 'SAÍDA' : 'AJUSTE') }}
+                        {{ m.movement_type === 'IN' ? 'ENTRADA' : (m.movement_type === 'OUT' ? 'SAIDA' : 'AJUSTE') }}
                       </span>
                     </td>
                     <td>
@@ -254,7 +280,7 @@ import { Product } from '../../models/inventory.models';
                       {{ m.new_stock }}
                     </td>
                     <td>
-                      <span class="doc-tag">{{ m.reference_doc || '—' }}</span>
+                      <span class="doc-tag">{{ m.reference_doc || '-' }}</span>
                     </td>
                     <td class="text-xs text-cream-muted">
                       {{ m.created_at | date:'dd/MM HH:mm' }}
@@ -272,9 +298,14 @@ import { Product } from '../../models/inventory.models';
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3 class="modal-title">
-              {{ quickModalType() === 'IN' ? '↓ Registrar Entrada de Estoque' : '↑ Registrar Saída de Estoque' }}
+              {{ quickModalType() === 'IN' ? 'Registrar Entrada de Estoque' : 'Registrar Saida de Estoque' }}
             </h3>
-            <button class="modal-close-btn" (click)="closeQuickModal()">✕</button>
+            <button class="modal-close-btn" (click)="closeQuickModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
           <form (ngSubmit)="submitQuickMovement()" class="modal-form">
@@ -315,14 +346,14 @@ import { Product } from '../../models/inventory.models';
             </div>
 
             <div class="form-group">
-              <label class="form-label">Motivo da Movimentação *</label>
+              <label class="form-label">Motivo da Movimentacao *</label>
               <input 
                 type="text" 
                 [(ngModel)]="quickReason" 
                 name="reason" 
                 required 
                 class="glass-input" 
-                placeholder="Ex: Reposição de fornecedor / Pedido de cliente"
+                placeholder="Ex: Reposicao de fornecedor / Pedido de cliente"
               />
             </div>
 
@@ -333,7 +364,7 @@ import { Product } from '../../models/inventory.models';
                 class="btn"
                 [ngClass]="quickModalType() === 'IN' ? 'btn-success' : 'btn-danger'"
               >
-                Confirmar {{ quickModalType() === 'IN' ? 'Entrada' : 'Saída' }}
+                Confirmar {{ quickModalType() === 'IN' ? 'Entrada' : 'Saida' }}
               </button>
             </div>
           </form>
