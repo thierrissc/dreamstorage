@@ -86,56 +86,41 @@ import { InventoryService } from '../../../core/services/inventory.service';
   `,
   styles: [`
     .sidebar-wrapper {
-      width: 260px;
-      min-height: calc(100vh - 67px);
-      padding: 24px 16px;
+      width: 240px;
+      min-height: calc(100vh - 55px);
+      padding: 20px 14px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      background: rgba(8, 16, 42, 0.45);
-      border-right: 1px solid rgba(235, 224, 198, 0.1);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-subtle);
     }
     .nav-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 14px;
-      color: var(--cream-200);
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
       text-decoration: none;
-      font-size: 0.92rem;
-      font-weight: 600;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all var(--transition-fast);
       border: 1px solid transparent;
-      position: relative;
     }
     .nav-item:hover {
-      background: rgba(16, 33, 84, 0.6);
-      color: var(--cream-50);
-      border-color: rgba(235, 224, 198, 0.15);
-      transform: translateX(3px);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
     }
     .nav-item.active {
-      background: linear-gradient(135deg, rgba(37, 77, 191, 0.35) 0%, rgba(16, 33, 84, 0.6) 100%);
-      color: #ffffff;
-      border-color: rgba(74, 124, 245, 0.4);
-      box-shadow: 0 4px 20px rgba(48, 98, 234, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-    }
-    .nav-item.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 25%;
-      bottom: 25%;
-      width: 4px;
-      border-radius: 0 4px 4px 0;
-      background: var(--cream-300);
-      box-shadow: 0 0 10px var(--cream-300);
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--royal-300);
+      border-color: rgba(37, 99, 235, 0.25);
     }
     .nav-icon {
       display: flex;
@@ -145,7 +130,7 @@ import { InventoryService } from '../../../core/services/inventory.service';
     }
     .nav-item.active .nav-icon {
       opacity: 1;
-      color: var(--cream-200);
+      color: var(--royal-400);
     }
     .nav-text {
       flex: 1;
@@ -154,22 +139,20 @@ import { InventoryService } from '../../../core/services/inventory.service';
       font-size: 0.72rem;
       padding: 2px 7px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--cream-300);
-      font-weight: 700;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      font-weight: 600;
     }
 
     /* Health Card */
     .health-card {
-      background: rgba(12, 25, 68, 0.6);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(235, 224, 198, 0.14);
-      border-radius: 16px;
-      padding: 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      gap: 8px;
     }
     .health-header {
       display: flex;
@@ -177,39 +160,38 @@ import { InventoryService } from '../../../core/services/inventory.service';
       justify-content: space-between;
     }
     .health-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--cream-200);
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
     .health-badge {
-      font-size: 0.82rem;
-      font-weight: 800;
+      font-size: 0.8rem;
+      font-weight: 600;
       color: #34d399;
-      font-family: var(--font-heading);
+      font-family: var(--font-sans);
     }
     .health-bar-bg {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 999px;
       overflow: hidden;
     }
     .health-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
+      background: #10b981;
       border-radius: 999px;
-      transition: width 0.4s ease;
+      transition: width 0.3s ease;
     }
     .health-footer {
       display: flex;
       justify-content: space-between;
       font-size: 0.72rem;
-      color: rgba(235, 224, 198, 0.55);
+      color: var(--text-muted);
     }
     .health-warn {
       color: #fbbf24;
-      font-weight: 600;
     }
 
     @media (max-width: 900px) {

@@ -14,13 +14,13 @@ import { Product } from '../../models/inventory.models';
     <div class="dashboard-page">
       <!-- Page Header -->
       <div class="page-header">
-        <div class="header-titles">
+        <div>
           <h1 class="page-title">Visão Geral</h1>
-          <p class="page-desc">Controle operacional de inventário e movimentações em tempo real.</p>
+          <p class="page-desc">Controle operacional e movimentações de inventário</p>
         </div>
         <div class="header-actions">
           <button class="btn btn-glass" (click)="refreshData()" title="Atualizar dados">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M23 4v6h-6"></path>
               <path d="M1 20v-6h6"></path>
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -28,7 +28,7 @@ import { Product } from '../../models/inventory.models';
             <span>Atualizar</span>
           </button>
           <a routerLink="/produtos" [queryParams]="{ modal: 'new' }" class="btn btn-cream">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
@@ -37,106 +37,69 @@ import { Product } from '../../models/inventory.models';
         </div>
       </div>
 
-      <!-- Critical Alert Banner -->
-      <div *ngIf="summary()?.out_of_stock_count! > 0 || summary()?.low_stock_count! > 0" class="critical-banner">
-        <div class="banner-icon-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-        </div>
-        <div class="banner-content">
-          <div class="banner-title">Atenção aos Níveis de Estoque</div>
-          <div class="banner-text">
-            <span>{{ summary()?.out_of_stock_count }} itens zerados</span> e 
-            <span>{{ summary()?.low_stock_count }} itens abaixo do estoque mínimo</span>.
-          </div>
-        </div>
-        <a routerLink="/produtos" [queryParams]="{ status: 'LOW_STOCK' }" class="btn btn-sm btn-danger btn-banner-link">
-          <span>Verificar</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </a>
-      </div>
-
-      <!-- KPI Metrics Grid -->
+      <!-- Clean KPI Metrics Grid -->
       <div class="metrics-grid">
-        <!-- Metric 1: Valuation -->
         <div class="liquid-glass-card metric-card">
-          <div class="metric-header">
+          <div class="metric-top">
             <span class="metric-label">Valor em Estoque</span>
-            <div class="metric-icon-bubble royal-bubble">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-              </svg>
-            </div>
+            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
           </div>
-          <div class="metric-value currency-cream">
+          <div class="metric-value">
             {{ summary()?.total_inventory_cost | currency:'BRL':'symbol':'1.2-2' }}
           </div>
-          <div class="metric-footer">
-            <span class="metric-sub-highlight">Venda estimada: {{ summary()?.total_inventory_selling | currency:'BRL':'symbol':'1.2-2' }}</span>
+          <div class="metric-sub">
+            Venda estimada: {{ summary()?.total_inventory_selling | currency:'BRL':'symbol':'1.2-2' }}
           </div>
         </div>
 
-        <!-- Metric 2: Total Units -->
         <div class="liquid-glass-card metric-card">
-          <div class="metric-header">
+          <div class="metric-top">
             <span class="metric-label">Unidades Físicas</span>
-            <div class="metric-icon-bubble cream-bubble">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              </svg>
-            </div>
+            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            </svg>
           </div>
-          <div class="metric-value text-cream">
+          <div class="metric-value">
             {{ summary()?.total_stock_units | number }} <span class="metric-unit">unidades</span>
           </div>
-          <div class="metric-footer">
-            <span class="metric-sub-text">Em {{ summary()?.total_products }} produtos catalogados</span>
+          <div class="metric-sub">
+            Em {{ summary()?.total_products }} produtos catalogados
           </div>
         </div>
 
-        <!-- Metric 3: Critical Products -->
         <div class="liquid-glass-card metric-card">
-          <div class="metric-header">
+          <div class="metric-top">
             <span class="metric-label">Itens em Alerta</span>
-            <div class="metric-icon-bubble warn-bubble">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-            </div>
+            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
           </div>
-          <div class="metric-value text-warn">
-            {{ (summary()?.out_of_stock_count || 0) + (summary()?.low_stock_count || 0) }} <span class="metric-unit">críticos</span>
+          <div class="metric-value">
+            {{ (summary()?.out_of_stock_count || 0) + (summary()?.low_stock_count || 0) }}
           </div>
-          <div class="metric-footer">
-            <span class="metric-sub-text">{{ summary()?.out_of_stock_count }} esgotados · {{ summary()?.low_stock_count }} baixos</span>
+          <div class="metric-sub">
+            {{ summary()?.out_of_stock_count }} esgotados · {{ summary()?.low_stock_count }} baixos
           </div>
         </div>
 
-        <!-- Metric 4: Monthly Flow -->
         <div class="liquid-glass-card metric-card">
-          <div class="metric-header">
+          <div class="metric-top">
             <span class="metric-label">Fluxo Mensal</span>
-            <div class="metric-icon-bubble emerald-bubble">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-              </svg>
-            </div>
+            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
           </div>
-          <div class="metric-value text-emerald">
+          <div class="metric-value">
             +{{ summary()?.month_in_units }} / -{{ summary()?.month_out_units }}
           </div>
-          <div class="metric-footer">
-            <span class="metric-sub-highlight">{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) >= 0 ? '+' : '' }}{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) }} un saldo líquido</span>
+          <div class="metric-sub">
+            {{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) >= 0 ? '+' : '' }}{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) }} un saldo líquido
           </div>
         </div>
       </div>
@@ -403,41 +366,6 @@ import { Product } from '../../models/inventory.models';
       gap: 10px;
     }
 
-    /* Critical Alert Banner */
-    .critical-banner {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      background: linear-gradient(135deg, rgba(244, 63, 94, 0.18) 0%, rgba(16, 33, 84, 0.6) 100%);
-      border: 1px solid rgba(244, 63, 94, 0.35);
-      border-radius: 18px;
-      backdrop-filter: blur(14px);
-    }
-    .banner-icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: rgba(244, 63, 94, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .banner-content {
-      flex: 1;
-    }
-    .banner-title {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--cream-50);
-    }
-    .banner-text {
-      font-size: 0.85rem;
-      color: var(--cream-200);
-      margin-top: 2px;
-    }
-
     /* KPI Metrics Grid */
     .metrics-grid {
       display: grid;
@@ -445,76 +373,40 @@ import { Product } from '../../models/inventory.models';
       gap: 16px;
     }
     .metric-card {
-      padding: 20px;
-      border-radius: 14px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
     }
-    .metric-header {
+    .metric-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
     .metric-label {
       font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--cream-300);
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
     }
-    .metric-icon-bubble {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .royal-bubble {
-      background: rgba(48, 98, 234, 0.2);
-      color: var(--royal-300);
-      border: 1px solid rgba(74, 124, 245, 0.3);
-    }
-    .cream-bubble {
-      background: rgba(222, 205, 169, 0.16);
-      color: var(--cream-200);
-      border: 1px solid rgba(222, 205, 169, 0.3);
-    }
-    .warn-bubble {
-      background: rgba(245, 158, 11, 0.18);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.35);
-    }
-    .emerald-bubble {
-      background: rgba(16, 185, 129, 0.18);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.35);
+    .metric-icon {
+      color: var(--text-muted);
     }
     .metric-value {
       font-family: var(--font-heading);
-      font-size: 1.85rem;
-      font-weight: 800;
+      font-size: 1.65rem;
+      font-weight: 600;
+      color: var(--text-primary);
       letter-spacing: -0.02em;
     }
     .metric-unit {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--cream-400);
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-muted);
     }
-    .text-warn { color: #fbbf24; }
-    .text-emerald { color: #34d399; }
-    .text-rose { color: #fb7185; }
-    .text-cream { color: var(--cream-50); }
-    .metric-footer {
+    .metric-sub {
       font-size: 0.78rem;
-      color: var(--cream-400);
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      padding-top: 10px;
-    }
-    .metric-sub-highlight {
-      color: var(--cream-200);
-      font-weight: 600;
+      color: var(--text-muted);
     }
 
     /* Main Grid */
@@ -617,59 +509,52 @@ import { Product } from '../../models/inventory.models';
     .quick-buttons-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 12px;
     }
     .quick-btn {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(235, 224, 198, 0.16);
-      background: rgba(16, 33, 84, 0.5);
-      color: var(--cream-100);
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-input);
+      color: var(--text-primary);
       cursor: pointer;
       text-align: left;
-      transition: all 0.2s;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
     }
     .quick-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-    .in-btn:hover {
-      border-color: rgba(16, 185, 129, 0.5);
-      background: rgba(16, 185, 129, 0.15);
-    }
-    .out-btn:hover {
-      border-color: rgba(244, 63, 94, 0.5);
-      background: rgba(244, 63, 94, 0.15);
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.15);
     }
     .quick-btn-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
-      font-weight: 800;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
     }
     .in-btn .quick-btn-icon {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
+      color: var(--status-success-text);
+      background: var(--status-success-bg);
     }
     .out-btn .quick-btn-icon {
-      background: rgba(244, 63, 94, 0.2);
-      color: #fb7185;
+      color: var(--status-danger-text);
+      background: var(--status-danger-bg);
     }
     .quick-btn-text strong {
       display: block;
-      font-size: 0.92rem;
-      color: var(--cream-50);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
     }
     .quick-btn-text span {
-      font-size: 0.76rem;
-      color: var(--cream-400);
+      font-size: 0.74rem;
+      color: var(--text-muted);
     }
 
     /* Table */

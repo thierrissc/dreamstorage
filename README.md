@@ -1,12 +1,13 @@
 # DreamStorage - Sistema Inteligente de Controle de Estoque
 
-![Angular](https://img.shields.io/badge/Angular_21-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular_21-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![Django](https://img.shields.io/badge/Django_5-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![Django REST](https://img.shields.io/badge/DRF-A30000?style=for-the-badge&logo=django&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![NodeJS](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
@@ -14,7 +15,9 @@
 
 ## Visao Geral
 
-O **DreamStorage** e uma solucao integrada para gestao de inventario e controle logistico de estoque, projetada segundo padroes modernos de engenharia de software e design de interfaces. O sistema une a robustez do backend em Python (Django REST Framework) com a fluidez reativa do Angular 21 (Signals, standalone components) e uma interface limpa nas cores **Royal Blue** e **Creme**, com estetica translucida, responsividade total e iconografia SVG pura, sem utilizacao de emojis.
+O **DreamStorage** e uma solucao empresarial para gestao de inventario e controle logistico de estoque, projetada segundo padroes modernos de engenharia de software e design limpo (clean aesthetic). 
+
+A aplicacao utiliza **JavaScript como linguagem de maior uso no frontend** (desenvolvida com o framework Angular sob tipagem estatica TypeScript e compilada para JavaScript ECMAScript moderno), combinada com estilos puros em CSS3, HTML5 semantico e um motor de API em Python com Django REST Framework. A interface adota uma paleta elegante e contida em **Royal Blue** e **Creme**, com layout minimalista, navegacao fluida, responsividade total e iconografia SVG limpa sem o uso de emojis.
 
 ---
 

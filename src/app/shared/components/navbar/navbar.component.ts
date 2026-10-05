@@ -135,41 +135,36 @@ import { ToastService } from '../../../core/services/toast.service';
       position: sticky;
       top: 0;
       z-index: 500;
-      background: rgba(8, 17, 44, 0.78);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-bottom: 1px solid rgba(235, 224, 198, 0.12);
-      box-shadow: 0 4px 24px rgba(4, 8, 22, 0.45);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-subtle);
     }
     .navbar-container {
       max-width: 1440px;
       margin: 0 auto;
-      padding: 12px 28px;
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 20px;
     }
 
     /* Brand */
     .brand-link {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
       color: inherit;
     }
     .brand-icon-box {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--royal-500) 0%, var(--royal-700) 100%);
-      color: var(--cream-50);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--royal-500);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(48, 98, 234, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.25);
     }
     .brand-text {
       display: flex;
@@ -177,20 +172,19 @@ import { ToastService } from '../../../core/services/toast.service';
     }
     .brand-title {
       font-family: var(--font-heading);
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
       color: var(--cream-50);
     }
     .brand-accent {
       color: var(--royal-400);
-      text-shadow: 0 0 12px rgba(74, 124, 245, 0.5);
     }
     .brand-tag {
       font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      font-weight: 700;
-      color: var(--cream-400);
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: uppercase;
     }
 
@@ -198,78 +192,68 @@ import { ToastService } from '../../../core/services/toast.service';
     .search-box {
       position: relative;
       flex: 1;
-      max-width: 440px;
+      max-width: 400px;
     }
     .search-icon {
       position: absolute;
-      left: 14px;
+      left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(235, 224, 198, 0.45);
+      color: var(--text-muted);
       pointer-events: none;
     }
     .search-input {
       width: 100%;
-      background: rgba(12, 25, 68, 0.55);
-      border: 1px solid rgba(235, 224, 198, 0.14);
-      border-radius: 12px;
-      padding: 9px 80px 9px 40px;
-      color: var(--cream-100);
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 8px 70px 8px 36px;
+      color: var(--text-primary);
       font-family: var(--font-sans);
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       outline: none;
-      transition: all 0.2s ease;
+      transition: border-color var(--transition-fast);
     }
     .search-input:focus {
-      background: rgba(16, 33, 84, 0.85);
       border-color: var(--royal-400);
-      box-shadow: 0 0 0 3px rgba(74, 124, 245, 0.25);
     }
     .search-shortcut {
       position: absolute;
-      right: 12px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.72rem;
-      color: rgba(235, 224, 198, 0.4);
-      background: rgba(255, 255, 255, 0.05);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
       padding: 2px 6px;
       border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     /* Actions */
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 14px;
     }
     .status-indicator {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      border-radius: 999px;
+      gap: 6px;
+      padding: 5px 10px;
+      background: var(--status-success-bg);
+      border: 1px solid var(--status-success-border);
+      border-radius: 6px;
     }
     .status-dot {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       background: #10b981;
       border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
     }
     .status-label {
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 500;
       color: #34d399;
-      letter-spacing: 0.02em;
     }
 
     /* Alerts */
@@ -434,47 +418,45 @@ import { ToastService } from '../../../core/services/toast.service';
     .user-chip {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 5px 12px 5px 6px;
-      background: rgba(16, 33, 84, 0.55);
-      border: 1px solid rgba(235, 224, 198, 0.16);
+      gap: 9px;
+      padding: 4px 10px 4px 4px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
       border-radius: 999px;
       text-decoration: none;
       color: inherit;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
     }
     .user-chip:hover {
-      background: rgba(22, 45, 115, 0.85);
-      border-color: rgba(235, 224, 198, 0.35);
-      box-shadow: 0 0 15px rgba(48, 98, 234, 0.3);
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.15);
     }
     .avatar-cream {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--cream-200) 0%, var(--cream-400) 100%);
-      color: var(--royal-950);
-      font-weight: 800;
-      font-size: 0.85rem;
+      background: var(--cream-200);
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.8rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
     .user-info {
       display: flex;
       flex-direction: column;
     }
     .user-name {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--cream-100);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-primary);
       line-height: 1.1;
     }
     .user-role {
-      font-size: 0.68rem;
-      color: var(--cream-400);
+      font-size: 0.65rem;
+      color: var(--text-muted);
     }
 
     @media (max-width: 900px) {
