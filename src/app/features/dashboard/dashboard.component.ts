@@ -14,48 +14,47 @@ import { Product } from '../../models/inventory.models';
     <div class="dashboard-page">
       <!-- Page Header -->
       <div class="page-header">
-        <div>
-          <div class="welcome-tag">GESTÃO OPERACIONAL DE ESTOQUE</div>
-          <h1 class="page-title">Painel de Controle <span class="text-royal">Liquid Glass</span></h1>
-          <p class="page-desc">Monitoramento analítico em tempo real com controle de rupturas e valorização de ativos.</p>
+        <div class="header-titles">
+          <h1 class="page-title">Visão Geral</h1>
+          <p class="page-desc">Controle operacional de inventário e movimentações em tempo real.</p>
         </div>
         <div class="header-actions">
-          <button class="btn btn-glass" (click)="refreshData()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button class="btn btn-glass" (click)="refreshData()" title="Atualizar dados">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M23 4v6h-6"></path>
               <path d="M1 20v-6h6"></path>
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
             </svg>
-            Sincronizar
+            <span>Atualizar</span>
           </button>
           <a routerLink="/produtos" [queryParams]="{ modal: 'new' }" class="btn btn-cream">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Novo Produto
+            <span>Novo Produto</span>
           </a>
         </div>
       </div>
 
-      <!-- Critical Alert Banner if needed -->
+      <!-- Critical Alert Banner -->
       <div *ngIf="summary()?.out_of_stock_count! > 0 || summary()?.low_stock_count! > 0" class="critical-banner">
         <div class="banner-icon-box">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </div>
         <div class="banner-content">
-          <div class="banner-title">Atencao Necessaria: Itens Criticos de Estoque</div>
+          <div class="banner-title">Atenção aos Níveis de Estoque</div>
           <div class="banner-text">
-            Existem <strong>{{ summary()?.out_of_stock_count }} itens zerados</strong> e 
-            <strong>{{ summary()?.low_stock_count }} itens abaixo do estoque minimo</strong>.
+            <span>{{ summary()?.out_of_stock_count }} itens zerados</span> e 
+            <span>{{ summary()?.low_stock_count }} itens abaixo do estoque mínimo</span>.
           </div>
         </div>
         <a routerLink="/produtos" [queryParams]="{ status: 'LOW_STOCK' }" class="btn btn-sm btn-danger btn-banner-link">
-          <span>Ver Itens Criticos</span>
+          <span>Verificar</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
@@ -68,9 +67,9 @@ import { Product } from '../../models/inventory.models';
         <!-- Metric 1: Valuation -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Valor de Custo do Inventario</span>
+            <span class="metric-label">Valor em Estoque</span>
             <div class="metric-icon-bubble royal-bubble">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"></line>
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
@@ -80,16 +79,16 @@ import { Product } from '../../models/inventory.models';
             {{ summary()?.total_inventory_cost | currency:'BRL':'symbol':'1.2-2' }}
           </div>
           <div class="metric-footer">
-            <span class="metric-sub-highlight">Venda Projetada: {{ summary()?.total_inventory_selling | currency:'BRL':'symbol':'1.2-2' }}</span>
+            <span class="metric-sub-highlight">Venda estimada: {{ summary()?.total_inventory_selling | currency:'BRL':'symbol':'1.2-2' }}</span>
           </div>
         </div>
 
         <!-- Metric 2: Total Units -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Unidades em Deposito</span>
+            <span class="metric-label">Unidades Físicas</span>
             <div class="metric-icon-bubble cream-bubble">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
               </svg>
             </div>
@@ -98,16 +97,16 @@ import { Product } from '../../models/inventory.models';
             {{ summary()?.total_stock_units | number }} <span class="metric-unit">unidades</span>
           </div>
           <div class="metric-footer">
-            <span class="metric-sub-text">Distribuidas em <strong>{{ summary()?.total_products }} produtos</strong> cadastrados</span>
+            <span class="metric-sub-text">Em {{ summary()?.total_products }} produtos catalogados</span>
           </div>
         </div>
 
         <!-- Metric 3: Critical Products -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Indice de Ruptura</span>
+            <span class="metric-label">Itens em Alerta</span>
             <div class="metric-icon-bubble warn-bubble">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -115,19 +114,19 @@ import { Product } from '../../models/inventory.models';
             </div>
           </div>
           <div class="metric-value text-warn">
-            {{ summary()?.out_of_stock_count }} <span class="metric-unit">esgotados</span>
+            {{ (summary()?.out_of_stock_count || 0) + (summary()?.low_stock_count || 0) }} <span class="metric-unit">críticos</span>
           </div>
           <div class="metric-footer">
-            <span class="metric-sub-text"><strong>{{ summary()?.low_stock_count }}</strong> itens em nivel critico de ressuprimento</span>
+            <span class="metric-sub-text">{{ summary()?.out_of_stock_count }} esgotados · {{ summary()?.low_stock_count }} baixos</span>
           </div>
         </div>
 
         <!-- Metric 4: Monthly Flow -->
         <div class="liquid-glass-card metric-card">
           <div class="metric-header">
-            <span class="metric-label">Movimentacoes no Mes</span>
+            <span class="metric-label">Fluxo Mensal</span>
             <div class="metric-icon-bubble emerald-bubble">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                 <polyline points="17 6 23 6 23 12"></polyline>
               </svg>
@@ -137,7 +136,7 @@ import { Product } from '../../models/inventory.models';
             +{{ summary()?.month_in_units }} / -{{ summary()?.month_out_units }}
           </div>
           <div class="metric-footer">
-            <span class="metric-sub-highlight">+{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) }} saldo liquido</span>
+            <span class="metric-sub-highlight">{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) >= 0 ? '+' : '' }}{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) }} un saldo líquido</span>
           </div>
         </div>
       </div>
@@ -149,12 +148,9 @@ import { Product } from '../../models/inventory.models';
           <!-- Categories Distribution Card -->
           <div class="liquid-glass-card section-card">
             <div class="section-card-header">
-              <div>
-                <h2 class="section-title">Distribuicao por Categoria</h2>
-                <span class="section-subtitle">Ocupacao e densidade de inventario</span>
-              </div>
+              <h2 class="section-title">Categorias</h2>
               <a routerLink="/categorias" class="btn-link-cream">
-                <span>Gerenciar</span>
+                <span>Ver todas</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -188,36 +184,33 @@ import { Product } from '../../models/inventory.models';
           <!-- Quick Stock Movement Trigger Card -->
           <div class="liquid-glass-card section-card quick-action-card">
             <div class="section-card-header">
-              <div>
-                <h2 class="section-title">Acoes Operacionais Rapidas</h2>
-                <span class="section-subtitle">Registros imediatos de auditoria</span>
-              </div>
+              <h2 class="section-title">Operações Rápidas</h2>
             </div>
 
             <div class="quick-buttons-row">
               <button class="quick-btn in-btn" (click)="openQuickModal('IN')">
                 <div class="quick-btn-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <polyline points="19 12 12 19 5 12"></polyline>
                   </svg>
                 </div>
                 <div class="quick-btn-text">
                   <strong>Entrada de Mercadoria</strong>
-                  <span>Compra / Recebimento</span>
+                  <span>Recebimento / Compra</span>
                 </div>
               </button>
 
               <button class="quick-btn out-btn" (click)="openQuickModal('OUT')">
                 <div class="quick-btn-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="19" x2="12" y2="5"></line>
                     <polyline points="5 12 12 5 19 12"></polyline>
                   </svg>
                 </div>
                 <div class="quick-btn-text">
-                  <strong>Saida de Estoque</strong>
-                  <span>Venda / Expedicao</span>
+                  <strong>Saída de Estoque</strong>
+                  <span>Expedição / Baixa</span>
                 </div>
               </button>
             </div>
@@ -228,12 +221,9 @@ import { Product } from '../../models/inventory.models';
         <div class="dashboard-col">
           <div class="liquid-glass-card section-card">
             <div class="section-card-header">
-              <div>
-                <h2 class="section-title">Ultimas Movimentacoes</h2>
-                <span class="section-subtitle">Rastreabilidade e auditoria em tempo real</span>
-              </div>
+              <h2 class="section-title">Movimentações Recentes</h2>
               <a routerLink="/movimentacoes" class="btn-link-cream">
-                <span>Ver historico completo</span>
+                <span>Histórico</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -385,36 +375,32 @@ import { Product } from '../../models/inventory.models';
     /* Page Header */
     .page-header {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: space-between;
       gap: 20px;
       flex-wrap: wrap;
     }
-    .welcome-tag {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      color: var(--cream-400);
-      margin-bottom: 4px;
+    .header-titles {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     .page-title {
-      font-size: 2.2rem;
-      line-height: 1.15;
-    }
-    .text-royal {
-      background: linear-gradient(135deg, var(--royal-300) 0%, var(--cream-100) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--cream-50);
+      letter-spacing: -0.02em;
+      margin: 0;
     }
     .page-desc {
-      font-size: 0.94rem;
-      color: var(--cream-300);
-      margin-top: 6px;
+      font-size: 0.88rem;
+      color: var(--cream-400);
+      margin: 0;
     }
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     /* Critical Alert Banner */
@@ -456,13 +442,14 @@ import { Product } from '../../models/inventory.models';
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      gap: 16px;
     }
     .metric-card {
-      padding: 24px;
+      padding: 20px;
+      border-radius: 14px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
     .metric-header {
       display: flex;
