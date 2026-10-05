@@ -1,77 +1,95 @@
 # DreamStorage - Sistema Inteligente de Controle de Estoque
-> **Royal Blue & Cream Liquid Glass Aesthetic**
-> Sistema empresarial de controle de estoque de alta performance, construído com **Angular** no frontend e **Django REST Framework** no backend.
+> Royal Blue & Cream Liquid Glass Aesthetic
+> Arquitetura empresarial unificada com Angular 21 e Django REST Framework.
 
 ---
 
-## 💎 Visão Geral do Sistema
-O **DreamStorage** é uma solução completa para gestão moderna de inventário, projetada para combinar eficiência operacional e uma experiência visual de ponta com efeito *Liquid Glass* (vidro líquido com reflexos especulares e desfoque dinâmico), paleta de cores nobre em **Royal Blue** e **Creme**, responsividade total e arquitetura escalável e segura.
+## Visao Geral do Sistema
+O **DreamStorage** e uma solucao integrada para gestao moderna de inventario e controle logistico de estoque, projetada segundo as melhores praticas de engenharia de software e design de interfaces. O sistema une a robustez do backend em Python com o dinamismo do Angular e a elegancia visual da estetica **Liquid Glass** (vidro translucido com reflexos especulares e desfoque adaptativo), paleta nobre em **Royal Blue** e **Creme**, responsividade total e zero emojis, priorizando iconografia SVG precisa.
 
-### 🌟 Destaques do Projeto
-- **Interface Liquid Glass**: Efeitos de refração, vidro fumê azul royal translúcido, detalhes em creme marfim, blur dinâmico (`backdrop-filter`) e micro-interações fluidas.
-- **Painel de Controle em Tempo Real**: KPIs de valor total do estoque, itens críticos, giro de estoque, movimentações recentes e alertas automáticos de reposição.
-- **Gestão Abrangente de Produtos**: Cadastro detalhado com SKU, código de barras, categorias, fornecedores, preço de custo, preço de venda, estoque mínimo, alertas de ruptura e localização física no armazém.
-- **Movimentações de Estoque (Auditoria Completa)**: Registro auditável de entradas (compras), saídas (vendas/descartes) e ajustes manuais com justificativa e histórico imutável.
-- **Segurança e Permissões**: Autenticação robusta (JWT / Token), proteção contra CSRF, controle de acesso e sanitização de dados.
-- **API RESTful Completa com Django**: Documentação clara de endpoints, serializers validados e suporte a banco relacional (SQLite para dev/PostgreSQL para prod).
-
----
-
-## 🛠️ Tecnologias Utilizadas
-
-### Frontend
-- **Angular 21+** (Standalone Components, Signals, Reactive Forms, Router)
-- **TypeScript & JavaScript moderno**
-- **HTML5 Semântico & Vanilla CSS Avançado** (Liquid Glassmorphism, CSS Custom Properties, Animações Fluidas)
-- **Lucide / Feather Icons** estilizados para estética tecnológica
-
-### Backend
-- **Python 3.12+**
-- **Django 5+ & Django REST Framework (DRF)**
-- **Django CORS Headers** para comunicação segura com o frontend
-- **SQLite / PostgreSQL** com migrações automáticas e seeds de demonstração
+### Principais Pilares da Engenharia
+- **Primitivos UI Inspirados em shadcn/ui e 21st.dev**: Arquitetura modular de componentes em `src/app/components/ui/` (Button, Badge, Card, Dialog, Input, Table), oferecendo consistencia de design, alta acessibilidade (ARIA) e controle de estado reativo com Signals.
+- **Liquid Glass Design System**: Tokens dedicados para cores Royal Blue (`#060d21`, `#102154`, `#3062ea`), Creme Marfim (`#fbf7ee`, `#ebdcc0`, `#decda9`), efeitos de vidro liquido com `backdrop-filter: blur(20px)`, iluminacao dinamica e micro-interacoes fluidas.
+- **Auditoria Imutavel de Estoque**: Todas as entradas (compras), saidas (expedicao/venda) e ajustes de balanco fisico sao registrados atomicamente via transacoes ACID no banco de dados (`select_for_update`), preservando historico de auditoria, precos, documentos e operadores.
+- **Deteccao Proativa de Ruptura**: Sistema de alerta automatico para produtos com saldo zerado ou abaixo da margem de seguranca configurada.
+- **Arquitetura Unificada**: Eliminacao de subdivisoes genericas de pastas (`frontend`/`backend`), organizando o projeto de forma coesa com `src/` para interface, `api/` para motor de regras de negocio e pontos de entrada consolidados na raiz (`manage.py`, `package.json`, `requirements.txt`).
 
 ---
 
-## 📁 Estrutura do Repositório
+## Estrutura do Repositorio
 ```
 dreamstorage/
-├── backend/                  # API Django REST Framework
-│   ├── manage.py
-│   ├── dreamstorage_core/    # Configurações do projeto Django
-│   ├── inventory/            # Módulo principal de estoque, produtos e movimentações
-│   ├── authentication/       # Módulo de autenticação e usuários
-│   └── requirements.txt
-├── frontend/                 # Aplicação Angular (Liquid Glass UI)
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── core/         # Serviços de API, auth, interceptors
-│   │   │   ├── shared/       # Componentes compartilhados, modais, pipes
-│   │   │   ├── features/     # Dashboard, Produtos, Movimentações, Categorias
-│   │   └── styles.css        # Design System (Royal Blue & Cream Liquid Glass)
+├── api/                           # Motor de regras de negocio (Django REST Framework)
+│   ├── authentication/            # Modulo de usuarios, autenticacao e perfis
+│   ├── dreamstorage_core/         # Configuracoes do projeto (settings, urls, wsgi)
+│   ├── inventory/                 # Modulo de produtos, categorias, fornecedores e auditoria
+│   │   ├── management/commands/   # Comando de carga seed_data
+│   │   ├── migrations/            # Versionamento de schema de banco
+│   │   ├── models.py              # Modelos relacionais (Product, Category, Movement, Alert)
+│   │   ├── serializers.py         # Validacao e serializacao transacional
+│   │   └── views.py               # ViewSets e consolidacao de dashboard
+│   ├── manage.py                  # CLI Django interno
+│   └── requirements.txt           # Dependencias Python
+├── src/                           # Aplicacao Angular 21 (Client Architecture)
+│   ├── app/
+│   │   ├── components/
+│   │   │   └── ui/                # Primitivos UI (Button, Badge, Card, etc.)
+│   │   ├── core/                  # Servicos singleton (InventoryService, AuthService, ToastService)
+│   │   ├── features/              # Modulos de dominio
+│   │   │   ├── categories/        # Gestao taxonomica e fornecedores
+│   │   │   ├── dashboard/         # Metricas analiticas e KPIs em tempo real
+│   │   │   ├── movements/         # Livro-razao e auditoria de movimentacoes
+│   │   │   └── products/          # Catalogo de itens, gauges e acoes rapidas
+│   │   ├── models/                # Interfaces e tipos de dominio TypeScript
+│   │   └── shared/                # Navbar, Sidebar, ToastContainer
+│   ├── styles.css                 # Design System Tokens (Liquid Glass, Royal Blue, Cream)
+│   ├── index.html                 # HTML semantico com fontes Plus Jakarta Sans e Outfit
+│   └── main.ts                    # Bootstrap Angular
+├── public/                        # Assets estaticos publicos
+├── angular.json                   # Configuracoes de build do Angular
+├── package.json                   # Dependencias e scripts de execucao
+├── requirements.txt               # Dependencias Python na raiz
+├── manage.py                      # Ponto de entrada CLI unificado para Django
 └── README.md
 ```
 
 ---
 
-## 🚀 Como Executar Localmente
+## Guia de Execucao
 
-### Backend (Django)
+### 1. Requisitos
+- Node.js 18+ (recomendado Node 20+)
+- Python 3.10+ (recomendado Python 3.12+)
+
+### 2. Backend (API Django REST Framework)
+A partir da raiz do projeto:
 ```bash
-cd backend
-python -m venv venv
-# Windows:
-.\venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py seed_data    # Popula dados de demonstração
-python manage.py runserver
+python manage.py seed_data        # Popula o banco com itens realistas de datacenter e rede
+python manage.py runserver 8000
 ```
+A API estara disponivel em: `http://localhost:8000/api/`
 
-### Frontend (Angular)
+### 3. Frontend (Interface Angular Liquid Glass)
+A partir da raiz do projeto:
 ```bash
-cd frontend
 npm install
 npm start
 ```
-Acesse a aplicação em: `http://localhost:4200`
+A interface do usuario estara acessivel em: `http://localhost:4200`
+
+---
+
+## Endpoints da API REST
+| Metodo | Endpoint | Descricao |
+| :--- | :--- | :--- |
+| GET | `/api/` | Verificacao de integridade e mapa de rotas |
+| GET | `/api/inventory/dashboard/` | Metricas consolidadas em tempo real |
+| GET, POST | `/api/inventory/products/` | Catalogo e cadastro de produtos |
+| POST | `/api/inventory/products/{id}/quick-movement/` | Entrada ou saida rapida direta da linha |
+| GET, POST | `/api/inventory/movements/` | Livro de movimentacoes de estoque |
+| GET, POST | `/api/inventory/categories/` | Gestao de categorias |
+| GET, POST | `/api/inventory/suppliers/` | Gestao de fornecedores |
+| GET, POST | `/api/inventory/alerts/` | Consulta e marcacao de alertas de ruptura |
+| POST | `/api/auth/login/` | Autenticacao de sessao |
