@@ -20,10 +20,18 @@ import { Category, Supplier } from '../../models/inventory.models';
         </div>
         <div class="header-actions">
           <button *ngIf="activeTab === 'categories'" class="btn btn-cream" (click)="openCategoryModal()">
-            + Nova Categoria
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Nova Categoria</span>
           </button>
           <button *ngIf="activeTab === 'suppliers'" class="btn btn-cream" (click)="openSupplierModal()">
-            + Novo Fornecedor
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Novo Fornecedor</span>
           </button>
         </div>
       </div>
@@ -57,7 +65,7 @@ import { Category, Supplier } from '../../models/inventory.models';
             <span class="badge badge-category">{{ cat.products_count || 0 }} produtos</span>
           </div>
 
-          <p class="cat-desc">{{ cat.description || 'Sem descrição cadastrada.' }}</p>
+          <p class="cat-desc">{{ cat.description || 'Sem descricao cadastrada.' }}</p>
 
           <div class="cat-footer">
             <span class="cat-slug font-mono">/{{ cat.slug }}</span>
@@ -91,7 +99,7 @@ import { Category, Supplier } from '../../models/inventory.models';
               <span class="info-val font-mono">{{ sup.phone }}</span>
             </div>
             <div *ngIf="sup.address" class="sup-info-item">
-              <span class="info-label">Endereço:</span>
+              <span class="info-label">Endereco:</span>
               <span class="info-val text-xs">{{ sup.address }}</span>
             </div>
           </div>
@@ -103,7 +111,12 @@ import { Category, Supplier } from '../../models/inventory.models';
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3 class="modal-title">Cadastrar Categoria</h3>
-            <button class="modal-close-btn" (click)="closeCategoryModal()">✕</button>
+            <button class="modal-close-btn" (click)="closeCategoryModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
           <form (ngSubmit)="saveCategory()" class="modal-form">
@@ -115,12 +128,12 @@ import { Category, Supplier } from '../../models/inventory.models';
                 name="name" 
                 required 
                 class="glass-input" 
-                placeholder="Ex: Dispositivos de Fibra Óptica"
+                placeholder="Ex: Dispositivos de Fibra Optica"
               />
             </div>
 
             <div class="form-group">
-              <label class="form-label">Descrição</label>
+              <label class="form-label">Descricao</label>
               <textarea 
                 [(ngModel)]="catForm.description" 
                 name="description" 
@@ -162,7 +175,12 @@ import { Category, Supplier } from '../../models/inventory.models';
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3 class="modal-title">Cadastrar Fornecedor</h3>
-            <button class="modal-close-btn" (click)="closeSupplierModal()">✕</button>
+            <button class="modal-close-btn" (click)="closeSupplierModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
           <form (ngSubmit)="saveSupplier()" class="modal-form">
