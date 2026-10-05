@@ -81,7 +81,7 @@ import { ToastService } from '../../../core/services/toast.service';
 
               <div class="alerts-list">
                 <div *ngIf="inventoryService.alerts().length === 0" class="alerts-empty">
-                  ✓ Nenhum alerta pendente no momento.
+                  Nenhum alerta pendente no momento.
                 </div>
                 <div 
                   *ngFor="let alert of inventoryService.alerts()" 
@@ -92,16 +92,25 @@ import { ToastService } from '../../../core/services/toast.service';
                     <div class="alert-item-title">{{ alert.product_name }}</div>
                     <div class="alert-item-sub">
                       <span class="sku-tag">{{ alert.product_sku }}</span>
-                      <span class="alert-qty">Saldo atual: {{ alert.current_quantity }} (Mín: {{ alert.min_stock }})</span>
+                      <span class="alert-qty">Saldo atual: {{ alert.current_quantity }} (Min: {{ alert.min_stock }})</span>
                     </div>
                   </div>
-                  <button class="alert-dismiss" (click)="dismissAlert(alert.id)" title="Dispensar">✕</button>
+                  <button class="alert-dismiss" (click)="dismissAlert(alert.id)" title="Dispensar" aria-label="Dispensar alerta">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
               <div class="alerts-footer">
                 <a routerLink="/produtos" (click)="showAlerts.set(false)" class="alerts-view-all">
-                  Ver todos os produtos no inventário →
+                  <span>Ver todos os produtos no inventário</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
                 </a>
               </div>
             </div>
