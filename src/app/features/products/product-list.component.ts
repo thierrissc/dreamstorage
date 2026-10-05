@@ -185,17 +185,31 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
                 <!-- Actions -->
                 <td class="text-right">
                   <div class="action-buttons">
-                    <button class="action-btn in-btn" (click)="openQuickModal(p, 'IN')" title="Entrada Rápida (+)">
-                      + Entrada
+                    <button class="action-btn in-btn" (click)="openQuickModal(p, 'IN')" title="Entrada Rapida">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                      </svg>
+                      <span>Entrada</span>
                     </button>
-                    <button class="action-btn out-btn" (click)="openQuickModal(p, 'OUT')" title="Saída Rápida (-)" [disabled]="p.quantity <= 0">
-                      - Saída
+                    <button class="action-btn out-btn" (click)="openQuickModal(p, 'OUT')" title="Saida Rapida" [disabled]="p.quantity <= 0">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                      </svg>
+                      <span>Saida</span>
                     </button>
-                    <button class="icon-action-btn" (click)="openEditModal(p)" title="Editar">
-                      ✎
+                    <button class="icon-action-btn" (click)="openEditModal(p)" title="Editar produto" aria-label="Editar">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
                     </button>
-                    <button class="icon-action-btn danger-action" (click)="confirmDelete(p)" title="Excluir">
-                      🗑
+                    <button class="icon-action-btn danger-action" (click)="confirmDelete(p)" title="Excluir produto" aria-label="Excluir">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
                     </button>
                   </div>
                 </td>
@@ -212,7 +226,12 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
             <h3 class="modal-title">
               {{ editingProductId ? 'Editar Produto: ' + formData.sku : 'Cadastrar Novo Produto' }}
             </h3>
-            <button class="modal-close-btn" (click)="closeFormModal()">✕</button>
+            <button class="modal-close-btn" (click)="closeFormModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
           <form (ngSubmit)="saveProduct()" class="modal-form">
@@ -396,9 +415,14 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3 class="modal-title">
-              {{ quickType === 'IN' ? '↓ Entrada Rápida de Estoque' : '↑ Saída Rápida de Estoque' }}
+              {{ quickType === 'IN' ? 'Entrada Rapida de Estoque' : 'Saida Rapida de Estoque' }}
             </h3>
-            <button class="modal-close-btn" (click)="closeQuickModal()">✕</button>
+            <button class="modal-close-btn" (click)="closeQuickModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
           <div *ngIf="selectedProductForAction" class="modal-product-summary">
@@ -425,7 +449,7 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
               </div>
 
               <div class="form-group">
-                <label class="form-label">Nº Documento / Pedido</label>
+                <label class="form-label">N Documento / Pedido</label>
                 <input 
                   type="text" 
                   [(ngModel)]="quickDoc" 
@@ -437,14 +461,14 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
             </div>
 
             <div class="form-group">
-              <label class="form-label">Motivo da Operação *</label>
+              <label class="form-label">Motivo da Operacao *</label>
               <input 
                 type="text" 
                 [(ngModel)]="quickReason" 
                 name="quickReason" 
                 required 
                 class="glass-input" 
-                placeholder="Ex: Chegada de fornecedor / Saída de venda balcão"
+                placeholder="Ex: Chegada de fornecedor / Saida de venda balcao"
               />
             </div>
 
@@ -455,7 +479,7 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
                 class="btn"
                 [ngClass]="quickType === 'IN' ? 'btn-success' : 'btn-danger'"
               >
-                Confirmar {{ quickType === 'IN' ? 'Entrada' : 'Saída' }}
+                Confirmar {{ quickType === 'IN' ? 'Entrada' : 'Saida' }}
               </button>
             </div>
           </form>
@@ -470,7 +494,12 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
               <span class="sku-tag">{{ activeDetailProduct?.sku }}</span>
               <h3 class="modal-title" style="margin-top: 6px;">{{ activeDetailProduct?.name }}</h3>
             </div>
-            <button class="modal-close-btn" (click)="closeDetailModal()">✕</button>
+            <button class="modal-close-btn" (click)="closeDetailModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
           <div *ngIf="activeDetailProduct" class="detail-body">
