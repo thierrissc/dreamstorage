@@ -117,7 +117,7 @@ import { ToastService } from '../../../core/services/toast.service';
           </div>
 
           <!-- User Profile Chip -->
-          <div class="user-chip">
+          <a routerLink="/perfil" class="user-chip" title="Gerenciar Perfil e Seguranca">
             <div class="avatar-cream">
               {{ authService.currentUser().username.charAt(0).toUpperCase() }}
             </div>
@@ -125,7 +125,7 @@ import { ToastService } from '../../../core/services/toast.service';
               <span class="user-name">{{ authService.currentUser().first_name || authService.currentUser().username }}</span>
               <span class="user-role">Super Admin</span>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </header>
@@ -439,6 +439,15 @@ import { ToastService } from '../../../core/services/toast.service';
       background: rgba(16, 33, 84, 0.55);
       border: 1px solid rgba(235, 224, 198, 0.16);
       border-radius: 999px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .user-chip:hover {
+      background: rgba(22, 45, 115, 0.85);
+      border-color: rgba(235, 224, 198, 0.35);
+      box-shadow: 0 0 15px rgba(48, 98, 234, 0.3);
     }
     .avatar-cream {
       width: 32px;
