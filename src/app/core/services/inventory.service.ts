@@ -8,7 +8,8 @@ import {
   Supplier,
   StockMovement,
   StockAlert,
-  DashboardOverview
+  DashboardOverview,
+  DeliveryOrder
 } from '../../models/inventory.models';
 
 @Injectable({
@@ -23,6 +24,7 @@ export class InventoryService {
   suppliers = signal<Supplier[]>([]);
   movements = signal<StockMovement[]>([]);
   alerts = signal<StockAlert[]>([]);
+  deliveries = signal<DeliveryOrder[]>([]);
   dashboardData = signal<DashboardOverview | null>(null);
   isLoading = signal<boolean>(false);
 
@@ -701,6 +703,100 @@ export class InventoryService {
         this.products.update(curr => curr.filter(p => p.id !== id));
         this.recalculateDashboard();
         return of({ success: true });
+      })
+    );
+  }
+
+  // --- ARQUIVAMENTO DE PRODUTOS ---
+  archiveProduct(id: number, reason: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/products/${id}/archive/`, { reason }).pipe(
+      tap(res => {
+        if (res.product) {
+          this.products.update(curr => curr.map(p => p.id === id ? res.product : p));
+        } else {
+          this.products.update(curr => curr.map(p => p.id === id ? { ...p, is_archived: true, archive_reason: reason } : p));
+        }
+        this.recalculateDashboard();
+      }),
+      catchError(() => {
+        this.products.update(curr => curr.map(p => p.id === id ? { ...p, is_archived: true, archive_reason: reason } : p));
+        this.recalculateDashboard();
+        return of({ success: true });
+      })
+    );
+  }
+
+  unarchiveProduct(id: number): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/products/${id}/unarchive/`, {}).pipe(
+      tap(res => {
+        if (res.product) {
+          this.products.update(curr => curr.map(p => p.id === id ? res.product : p));
+        } else {
+          this.products.update(curr => curr.map(p => p.id === id ? { ...p, is_archived: false, archive_reason: undefined } : p));
+        }
+        this.recalculateDashboard();
+      }),
+      catchError(() => {
+        this.products.update(curr => curr.map(p => p.id === id ? { ...p, is_archived: false, archive_reason: undefined } : p));
+        this.recalculateDashboard();
+        return of({ success: true });
+      })
+    );
+  }
+
+  // --- ENTREGAS & DESPACHO LOGÍSTICO ---
+  loadDeliveries(): Observable<DeliveryOrder[]> {
+    return this.http.get<any>(`${this.baseUrl}/deliveries/`).pipe(
+      map(res => Array.isArray(res) ? res : res.results || []),
+      tap(orders => {
+        this.deliveries.set(orders);
+      }),
+      catchError(() => {
+        return of(this.deliveries());
+      })
+    );
+  }
+
+  dispatchDelivery(productId: number, payload: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/products/${productId}/dispatch-delivery/`, payload).pipe(
+      tap(res => {
+        if (res.delivery) {
+          this.deliveries.update(curr => [res.delivery, ...curr]);
+        }
+        if (res.product) {
+          this.products.update(curr => curr.map(p => p.id === productId ? res.product : p));
+        }
+        this.recalculateDashboard();
+      }),
+      catchError(() => {
+        // Fallback local
+        const prod = this.products().find(p => p.id === productId);
+        if (!prod) return throwError(() => new Error('Produto não encontrado'));
+        const qty = Number(payload.quantity) || 1;
+        if (prod.quantity < qty) return throwError(() => new Error('Estoque insuficiente para despacho'));
+
+        const code = `BR${Date.now().toString().slice(-8)}BR`;
+        const newDelivery: DeliveryOrder = {
+          id: Date.now(),
+          product: prod.id,
+          product_name: prod.name,
+          product_sku: prod.sku,
+          quantity: qty,
+          recipient_name: payload.recipient_name,
+          recipient_address: payload.recipient_address,
+          recipient_phone: payload.recipient_phone || '',
+          carrier: payload.carrier || 'CORREIOS',
+          tracking_code: code,
+          external_delivery_url: `https://rastreamento.correios.com.br/app/index.php?codigo=${code}`,
+          status: 'DISPATCHED',
+          shipping_cost: payload.shipping_cost || 0,
+          created_at: new Date().toISOString()
+        };
+
+        this.deliveries.update(curr => [newDelivery, ...curr]);
+        this.products.update(curr => curr.map(p => p.id === productId ? { ...p, quantity: p.quantity - qty } : p));
+        this.recalculateDashboard();
+        return of({ delivery: newDelivery, product: prod });
       })
     );
   }

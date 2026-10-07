@@ -44,11 +44,38 @@ export interface Product {
   max_stock: number;
   location?: string;
   is_active: boolean;
+  is_archived?: boolean;
+  archived_at?: string;
+  archive_reason?: string;
   stock_status?: StockStatus;
   total_cost_value?: number;
   total_selling_value?: number;
   margin_percentage?: number;
   created_at?: string;
+  updated_at?: string;
+}
+
+export type DeliveryCarrier = 'CORREIOS' | 'LOGGI' | 'MELHOR_ENVIO' | 'JADLOG' | 'EXPRESS';
+export type DeliveryStatus = 'PREPARING' | 'DISPATCHED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
+
+export interface DeliveryOrder {
+  id: number;
+  product: number;
+  product_name?: string;
+  product_sku?: string;
+  quantity: number;
+  recipient_name: string;
+  recipient_address: string;
+  recipient_phone?: string;
+  carrier: DeliveryCarrier;
+  carrier_display?: string;
+  tracking_code: string;
+  external_delivery_url?: string;
+  status: DeliveryStatus;
+  status_display?: string;
+  shipping_cost: number | string;
+  notes?: string;
+  created_at: string;
   updated_at?: string;
 }
 

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Product, StockMovement, UnitMeasure } from '../../models/inventory.models';
+import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } from '../../models/inventory.models';
 
 @Component({
   selector: 'app-product-list',
@@ -47,6 +47,31 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
         </div>
 
         <div class="filter-controls">
+          <!-- View Mode: Ativos / Arquivados / Todos -->
+          <div class="status-pills">
+            <button 
+              class="pill-btn" 
+              [class.active]="viewMode === 'ACTIVE'" 
+              (click)="setViewMode('ACTIVE')"
+            >
+              Ativos ({{ activeCount() }})
+            </button>
+            <button 
+              class="pill-btn" 
+              [class.active]="viewMode === 'ARCHIVED'" 
+              (click)="setViewMode('ARCHIVED')"
+            >
+              Arquivados ({{ archivedCount() }})
+            </button>
+            <button 
+              class="pill-btn" 
+              [class.active]="viewMode === 'ALL'" 
+              (click)="setViewMode('ALL')"
+            >
+              Todos ({{ totalCount() }})
+            </button>
+          </div>
+
           <!-- Category Filter -->
           <select [(ngModel)]="selectedCategory" (change)="applyFilters()" class="glass-input filter-select">
             <option value="">Todas as Categorias</option>
@@ -56,13 +81,13 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
           </select>
 
           <!-- Status Filter Pills -->
-          <div class="status-pills">
+          <div class="status-pills" *ngIf="viewMode !== 'ARCHIVED'">
             <button 
               class="pill-btn" 
               [class.active]="selectedStatus === ''" 
               (click)="setStatusFilter('')"
             >
-              Todos ({{ totalCount() }})
+              Todos os Níveis
             </button>
             <button 
               class="pill-btn pill-normal" 
@@ -101,7 +126,7 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
                 <th>Preço Custo / Venda</th>
                 <th>Estoque Atual</th>
                 <th>Status</th>
-                <th class="text-right">Ações Rápidas</th>
+                <th class="text-right">Ações & Despacho</th>
               </tr>
             </thead>
             <tbody>
@@ -170,7 +195,11 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
 
                 <!-- Status Badge -->
                 <td>
+                  <span *ngIf="p.is_archived" class="badge badge-low" [title]="p.archive_reason || 'Item arquivado'">
+                    Arquivado
+                  </span>
                   <span 
+                    *ngIf="!p.is_archived"
                     class="badge" 
                     [ngClass]="{
                       'badge-normal': p.stock_status === 'NORMAL',
@@ -185,32 +214,63 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
                 <!-- Actions -->
                 <td class="text-right">
                   <div class="action-buttons">
-                    <button class="action-btn in-btn" (click)="openQuickModal(p, 'IN')" title="Entrada Rapida">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <polyline points="19 12 12 19 5 12"></polyline>
-                      </svg>
-                      <span>Entrada</span>
-                    </button>
-                    <button class="action-btn out-btn" (click)="openQuickModal(p, 'OUT')" title="Saida Rapida" [disabled]="p.quantity <= 0">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="19" x2="12" y2="5"></line>
-                        <polyline points="5 12 12 5 19 12"></polyline>
-                      </svg>
-                      <span>Saida</span>
-                    </button>
-                    <button class="icon-action-btn" (click)="openEditModal(p)" title="Editar produto" aria-label="Editar">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </button>
-                    <button class="icon-action-btn danger-action" (click)="confirmDelete(p)" title="Excluir produto" aria-label="Excluir">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
-                    </button>
+                    <!-- Ações para itens arquivados -->
+                    <ng-container *ngIf="p.is_archived">
+                      <button class="action-btn in-btn" (click)="unarchive(p)" title="Desarquivar e reativar produto no catálogo">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="1 4 1 10 7 10"></polyline>
+                          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>Reativar</span>
+                      </button>
+                    </ng-container>
+
+                    <!-- Ações para itens ativos -->
+                    <ng-container *ngIf="!p.is_archived">
+                      <!-- Despacho para Entrega -->
+                      <button 
+                        class="action-btn dispatch-btn" 
+                        (click)="openDispatchModal(p)" 
+                        title="Despachar para site de entregas"
+                        [disabled]="p.quantity <= 0"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="1" y="3" width="15" height="13"></rect>
+                          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                          <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                          <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                        </svg>
+                        <span>Despachar</span>
+                      </button>
+
+                      <button class="action-btn in-btn" (click)="openQuickModal(p, 'IN')" title="Entrada Rápida">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <polyline points="19 12 12 19 5 12"></polyline>
+                        </svg>
+                        <span>Entrada</span>
+                      </button>
+                      <button class="action-btn out-btn" (click)="openQuickModal(p, 'OUT')" title="Saída Rápida" [disabled]="p.quantity <= 0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="12" y1="19" x2="12" y2="5"></line>
+                          <polyline points="5 12 12 5 19 12"></polyline>
+                        </svg>
+                        <span>Saída</span>
+                      </button>
+                      <button class="icon-action-btn" (click)="openEditModal(p)" title="Editar produto" aria-label="Editar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                      </button>
+                      <button class="icon-action-btn" (click)="openArchiveModal(p)" title="Salvar como item arquivado" aria-label="Arquivar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                          <rect x="1" y="3" width="22" height="5"></rect>
+                          <line x1="10" y1="12" x2="14" y2="12"></line>
+                        </svg>
+                      </button>
+                    </ng-container>
                   </div>
                 </td>
               </tr>
@@ -588,6 +648,193 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
           </div>
         </div>
       </div>
+
+      <!-- Dispatch to Delivery Site Modal -->
+      <div *ngIf="showDispatchModal()" class="modal-backdrop" (click)="closeDispatchModal()">
+        <div class="modal-dialog modal-md" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div>
+              <span class="sku-tag">{{ dispatchProduct?.sku }}</span>
+              <h3 class="modal-title" style="margin-top: 4px;">Despachar para Site de Entregas</h3>
+            </div>
+            <button class="modal-close-btn" (click)="closeDispatchModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Se já despachou com sucesso, exibe o link direto do site de entregas -->
+          <div *ngIf="lastGeneratedDelivery" class="modal-form">
+            <div class="delivery-success-card">
+              <div class="success-header">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h4>Despacho Confirmado com Sucesso!</h4>
+              </div>
+              <p class="delivery-info-text">
+                O estoque foi atualizado automaticamente e o código de rastreamento foi gerado para a transportadora <strong>{{ lastGeneratedDelivery.carrier_display || lastGeneratedDelivery.carrier }}</strong>.
+              </p>
+              <div class="tracking-box">
+                <span class="tracking-label">Código de Rastreamento:</span>
+                <span class="tracking-code-val">{{ lastGeneratedDelivery.tracking_code }}</span>
+              </div>
+              <div class="delivery-actions">
+                <a 
+                  *ngIf="lastGeneratedDelivery.external_delivery_url" 
+                  [href]="lastGeneratedDelivery.external_delivery_url" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="btn btn-royal btn-tracking-link"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                  <span>Acompanhar no Site de Entregas</span>
+                </a>
+                <button type="button" class="btn btn-glass" (click)="closeDispatchModal()">Concluir</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulário de Despacho -->
+          <form *ngIf="!lastGeneratedDelivery" (ngSubmit)="submitDispatch()" class="modal-form">
+            <div class="modal-product-summary">
+              <div class="summary-sku">{{ dispatchProduct?.sku }}</div>
+              <div class="summary-name">{{ dispatchProduct?.name }}</div>
+              <div class="summary-stock">
+                Saldo disponível: <strong>{{ dispatchProduct?.quantity }} {{ dispatchProduct?.unit_measure }}</strong>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Transportadora / Parceiro *</label>
+                <select [(ngModel)]="dispatchCarrier" name="carrier" required class="glass-input">
+                  <option value="CORREIOS">Correios (SEDEX / PAC)</option>
+                  <option value="LOGGI">Loggi Express</option>
+                  <option value="MELHOR_ENVIO">Melhor Envio</option>
+                  <option value="JADLOG">Jadlog Logística</option>
+                  <option value="EXPRESS">Entrega Expressa Própria</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Quantidade a Despachar *</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  [max]="dispatchProduct?.quantity || 1"
+                  [(ngModel)]="dispatchQty" 
+                  name="quantity" 
+                  required 
+                  class="glass-input" 
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nome do Destinatário *</label>
+              <input 
+                type="text" 
+                [(ngModel)]="dispatchRecipientName" 
+                name="recipientName" 
+                required 
+                class="glass-input" 
+                placeholder="Ex: Empresa Exemplo Ltda / João Silva"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Endereço Completo de Entrega *</label>
+              <input 
+                type="text" 
+                [(ngModel)]="dispatchRecipientAddress" 
+                name="recipientAddress" 
+                required 
+                class="glass-input" 
+                placeholder="Ex: Av. Paulista, 1000, Bela Vista - São Paulo/SP"
+              />
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Telefone / WhatsApp</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="dispatchRecipientPhone" 
+                  name="recipientPhone" 
+                  class="glass-input" 
+                  placeholder="(11) 98765-4321"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Valor do Frete (R$)</label>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  min="0"
+                  [(ngModel)]="dispatchShippingCost" 
+                  name="shippingCost" 
+                  class="glass-input" 
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn btn-glass" (click)="closeDispatchModal()">Cancelar</button>
+              <button type="submit" class="btn btn-royal">
+                Despachar & Gerar Rastreio
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Archive Confirmation Modal -->
+      <div *ngIf="showArchiveModal()" class="modal-backdrop" (click)="closeArchiveModal()">
+        <div class="modal-dialog modal-sm" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3 class="modal-title">Arquivar Item</h3>
+            <button class="modal-close-btn" (click)="closeArchiveModal()" aria-label="Fechar modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div class="modal-form">
+            <p class="archive-warning-text">
+              O produto <strong>{{ archiveProductTarget?.name }}</strong> (SKU: {{ archiveProductTarget?.sku }}) será arquivado. Ele deixará de constar no catálogo ativo, mas todos os históricos contábeis e auditorias serão preservados e poderão ser consultados ou reativados a qualquer momento.
+            </p>
+
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="form-label">Motivo do Arquivamento</label>
+              <input 
+                type="text" 
+                [(ngModel)]="archiveReason" 
+                class="glass-input" 
+                placeholder="Ex: Descontinuado pelo fabricante / Fim de linha"
+              />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn btn-glass" (click)="closeArchiveModal()">Cancelar</button>
+              <button type="button" class="btn btn-danger" (click)="submitArchive()">
+                Confirmar Arquivamento
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
@@ -851,6 +1098,19 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
       background: rgba(244, 63, 94, 0.3);
       color: #fff;
     }
+    .action-btn.dispatch-btn {
+      background: rgba(48, 98, 234, 0.2);
+      color: var(--cream-100);
+      border-color: rgba(77, 124, 254, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .action-btn.dispatch-btn:hover:not(:disabled) {
+      background: rgba(48, 98, 234, 0.45);
+      color: #fff;
+      border-color: rgba(77, 124, 254, 0.7);
+    }
     .action-btn:disabled {
       opacity: 0.35;
       cursor: not-allowed;
@@ -981,6 +1241,75 @@ import { Product, StockMovement, UnitMeasure } from '../../models/inventory.mode
       margin-bottom: 12px;
     }
 
+    /* Delivery & Tracking & Archive Styles */
+    .delivery-success-card {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .success-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .success-header h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #34d399;
+      font-weight: 700;
+    }
+    .delivery-info-text {
+      font-size: 0.88rem;
+      color: var(--cream-200);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .tracking-box {
+      background: rgba(4, 9, 24, 0.7);
+      border: 1px dashed rgba(235, 224, 198, 0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .tracking-label {
+      font-size: 0.82rem;
+      color: var(--cream-300);
+      font-weight: 600;
+    }
+    .tracking-code-val {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 0.08em;
+    }
+    .delivery-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .btn-tracking-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .archive-warning-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--cream-200);
+      margin: 0;
+    }
+
     @media (max-width: 900px) {
       .form-grid-3, .form-grid-2, .detail-grid {
         grid-template-columns: 1fr;
@@ -1024,6 +1353,25 @@ export class ProductListComponent implements OnInit {
   activeDetailProduct: Product | null = null;
   productMovements: StockMovement[] = [];
 
+  // View mode filter (Ativos / Arquivados / Todos)
+  viewMode: 'ACTIVE' | 'ARCHIVED' | 'ALL' = 'ACTIVE';
+
+  // Dispatch to Delivery Partner modal
+  showDispatchModal = signal<boolean>(false);
+  dispatchProduct: Product | null = null;
+  dispatchCarrier: DeliveryCarrier = 'CORREIOS';
+  dispatchRecipientName = '';
+  dispatchRecipientAddress = '';
+  dispatchRecipientPhone = '';
+  dispatchQty = 1;
+  dispatchShippingCost = 0;
+  lastGeneratedDelivery: DeliveryOrder | null = null;
+
+  // Archive modal
+  showArchiveModal = signal<boolean>(false);
+  archiveProductTarget: Product | null = null;
+  archiveReason = '';
+
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params['q']) {
@@ -1056,20 +1404,38 @@ export class ProductListComponent implements OnInit {
     };
   }
 
-  totalCount() {
+  totalCount(): number {
     return this.inventoryService.products().length;
   }
 
-  lowCount() {
-    return this.inventoryService.products().filter(p => p.quantity > 0 && p.quantity <= p.min_stock).length;
+  activeCount(): number {
+    return this.inventoryService.products().filter(p => !p.is_archived).length;
   }
 
-  outCount() {
-    return this.inventoryService.products().filter(p => p.quantity <= 0).length;
+  archivedCount(): number {
+    return this.inventoryService.products().filter(p => !!p.is_archived).length;
+  }
+
+  lowCount(): number {
+    return this.inventoryService.products().filter(p => !p.is_archived && p.quantity > 0 && p.quantity <= p.min_stock).length;
+  }
+
+  outCount(): number {
+    return this.inventoryService.products().filter(p => !p.is_archived && p.quantity <= 0).length;
+  }
+
+  setViewMode(mode: 'ACTIVE' | 'ARCHIVED' | 'ALL') {
+    this.viewMode = mode;
   }
 
   filteredProducts(): Product[] {
     let prods = this.inventoryService.products();
+
+    if (this.viewMode === 'ACTIVE') {
+      prods = prods.filter(p => !p.is_archived);
+    } else if (this.viewMode === 'ARCHIVED') {
+      prods = prods.filter(p => !!p.is_archived);
+    }
 
     if (this.searchTerm.trim()) {
       const q = this.searchTerm.toLowerCase();
@@ -1085,7 +1451,7 @@ export class ProductListComponent implements OnInit {
       prods = prods.filter(p => p.category === Number(this.selectedCategory));
     }
 
-    if (this.selectedStatus) {
+    if (this.selectedStatus && this.viewMode !== 'ARCHIVED') {
       prods = prods.filter(p => p.stock_status === this.selectedStatus);
     }
 
@@ -1201,4 +1567,86 @@ export class ProductListComponent implements OnInit {
   closeDetailModal() {
     this.showDetailModal.set(false);
   }
+
+  // --- DISPATCH TO DELIVERY SITE MODAL ---
+  openDispatchModal(p: Product) {
+    this.dispatchProduct = p;
+    this.dispatchCarrier = 'CORREIOS';
+    this.dispatchRecipientName = '';
+    this.dispatchRecipientAddress = '';
+    this.dispatchRecipientPhone = '';
+    this.dispatchQty = 1;
+    this.dispatchShippingCost = 0;
+    this.lastGeneratedDelivery = null;
+    this.showDispatchModal.set(true);
+  }
+
+  closeDispatchModal() {
+    this.showDispatchModal.set(false);
+    this.lastGeneratedDelivery = null;
+  }
+
+  submitDispatch() {
+    if (!this.dispatchProduct) return;
+
+    if (!this.dispatchRecipientName.trim() || !this.dispatchRecipientAddress.trim()) {
+      this.toast.error('Informe o nome e o endereço completo de entrega.');
+      return;
+    }
+
+    this.inventoryService.dispatchDelivery(this.dispatchProduct.id, {
+      carrier: this.dispatchCarrier,
+      quantity: Number(this.dispatchQty),
+      recipient_name: this.dispatchRecipientName.trim(),
+      recipient_address: this.dispatchRecipientAddress.trim(),
+      recipient_phone: this.dispatchRecipientPhone.trim(),
+      shipping_cost: Number(this.dispatchShippingCost || 0)
+    }).subscribe({
+      next: (res) => {
+        this.lastGeneratedDelivery = res;
+        this.toast.success('Despacho registrado e código de rastreamento gerado!');
+      },
+      error: (err) => {
+        this.toast.error(err.message || 'Erro ao realizar despacho de entrega');
+      }
+    });
+  }
+
+  // --- ARCHIVE / UNARCHIVE ---
+  openArchiveModal(p: Product) {
+    this.archiveProductTarget = p;
+    this.archiveReason = '';
+    this.showArchiveModal.set(true);
+  }
+
+  closeArchiveModal() {
+    this.showArchiveModal.set(false);
+    this.archiveProductTarget = null;
+  }
+
+  submitArchive() {
+    if (!this.archiveProductTarget) return;
+
+    this.inventoryService.archiveProduct(this.archiveProductTarget.id, this.archiveReason).subscribe({
+      next: () => {
+        this.toast.success(`Produto ${this.archiveProductTarget?.sku} arquivado com sucesso.`);
+        this.closeArchiveModal();
+      },
+      error: (err) => {
+        this.toast.error(err.message || 'Erro ao arquivar produto');
+      }
+    });
+  }
+
+  unarchive(p: Product) {
+    this.inventoryService.unarchiveProduct(p.id).subscribe({
+      next: () => {
+        this.toast.success(`Produto ${p.sku} reativado no catálogo com sucesso!`);
+      },
+      error: (err) => {
+        this.toast.error(err.message || 'Erro ao reativar produto');
+      }
+    });
+  }
 }
+
