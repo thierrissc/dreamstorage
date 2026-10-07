@@ -9,7 +9,8 @@ import {
   StockMovement,
   StockAlert,
   DashboardOverview,
-  DeliveryOrder
+  DeliveryOrder,
+  DeliveryStatus
 } from '../../models/inventory.models';
 
 @Injectable({
@@ -797,6 +798,19 @@ export class InventoryService {
         this.products.update(curr => curr.map(p => p.id === productId ? { ...p, quantity: p.quantity - qty } : p));
         this.recalculateDashboard();
         return of({ delivery: newDelivery, product: prod });
+      })
+    );
+  }
+
+  updateDeliveryStatus(id: number, status: DeliveryStatus): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/deliveries/${id}/update_status/`, { status }).pipe(
+      tap(res => {
+        const updated = res.delivery || res;
+        this.deliveries.update(curr => curr.map(d => d.id === id ? { ...d, status, status_display: updated.status_display } : d));
+      }),
+      catchError(() => {
+        this.deliveries.update(curr => curr.map(d => d.id === id ? { ...d, status } : d));
+        return of({ success: true });
       })
     );
   }

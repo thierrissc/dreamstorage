@@ -1603,7 +1603,7 @@ export class ProductListComponent implements OnInit {
       shipping_cost: Number(this.dispatchShippingCost || 0)
     }).subscribe({
       next: (res) => {
-        this.lastGeneratedDelivery = res;
+        this.lastGeneratedDelivery = res.delivery || res;
         this.toast.success('Despacho registrado e código de rastreamento gerado!');
       },
       error: (err) => {

@@ -46,6 +46,19 @@ import { InventoryService } from '../../../core/services/inventory.service';
           <span class="nav-text">Movimentações</span>
         </a>
 
+        <a routerLink="/entregas" routerLinkActive="active" class="nav-item">
+          <div class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <span class="nav-text">Entregas & Rastreio</span>
+          <span class="nav-counter" *ngIf="inventoryService.deliveries().length > 0">{{ inventoryService.deliveries().length }}</span>
+        </a>
+
         <a routerLink="/categorias" routerLinkActive="active" class="nav-item">
           <div class="nav-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
