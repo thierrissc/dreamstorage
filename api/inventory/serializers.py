@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.db import transaction
 from decimal import Decimal
-from .models import Category, Supplier, Product, StockMovement, StockAlert
+import uuid
+from .models import Category, Supplier, Product, StockMovement, StockAlert, DeliveryOrder
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -42,11 +43,12 @@ class ProductSerializer(serializers.ModelSerializer):
             'supplier', 'supplier_name',
             'unit_measure', 'cost_price', 'selling_price',
             'quantity', 'min_stock', 'max_stock', 'location',
-            'is_active', 'stock_status', 'total_cost_value',
+            'is_active', 'is_archived', 'archived_at', 'archive_reason',
+            'stock_status', 'total_cost_value',
             'total_selling_value', 'margin_percentage',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'archived_at', 'created_at', 'updated_at']
 
     def validate_sku(self, value):
         sku_clean = value.strip().upper()
@@ -187,3 +189,104 @@ class StockAlertSerializer(serializers.ModelSerializer):
             'current_quantity', 'min_stock', 'alert_type',
             'message', 'is_read', 'created_at'
         ]
+
+
+class DeliveryOrderSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    product_sku = serializers.CharField(source='product.sku', read_only=True)
+    carrier_display = serializers.CharField(source='get_carrier_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    class Meta:
+        model = DeliveryOrder
+        fields = [
+            'id', 'product', 'product_name', 'product_sku',
+            'quantity', 'recipient_name', 'recipient_address',
+            'recipient_phone', 'carrier', 'carrier_display',
+            'tracking_code', 'external_delivery_url', 'status',
+            'status_display', 'shipping_cost', 'notes',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'tracking_code', 'external_delivery_url', 'created_at', 'updated_at']
+
+    def validate_quantity(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("A quantidade para entrega deve ser maior que zero.")
+        return value
+
+    def validate(self, data):
+        product = data.get('product')
+        quantity = data.get('quantity', 1)
+        if product.is_archived:
+            raise serializers.ValidationError({"product": "Não é possível despachar produtos arquivados."})
+        if product.quantity < quantity:
+            raise serializers.ValidationError({
+                "quantity": f"Estoque insuficiente para entrega. Saldo atual: {product.quantity}, solicitado: {quantity}."
+            })
+        return data
+
+    @transaction.atomic
+    def create(self, validated_data):
+        product = validated_data['product']
+        quantity = validated_data.get('quantity', 1)
+        carrier = validated_data.get('carrier', 'CORREIOS')
+
+        # Bloqueia a linha no banco de dados para evitar race condition
+        product = Product.objects.select_for_update().get(pk=product.pk)
+        if product.quantity < quantity:
+            raise serializers.ValidationError({
+                "quantity": f"Estoque insuficiente. Saldo atual: {product.quantity}."
+            })
+
+        carrier_prefix = {
+            'CORREIOS': 'BR',
+            'LOGGI': 'LG',
+            'MELHOR_ENVIO': 'ME',
+            'JADLOG': 'JD',
+            'EXPRESS': 'EX',
+        }.get(carrier, 'DS')
+        unique_token = uuid.uuid4().hex[:8].upper()
+        tracking_code = f"{carrier_prefix}{unique_token}BR"
+
+        carrier_urls = {
+            'CORREIOS': f"https://rastreamento.correios.com.br/app/index.php?codigo={tracking_code}",
+            'LOGGI': f"https://www.loggi.com/rastreador/{tracking_code}",
+            'MELHOR_ENVIO': f"https://melhorrastreio.com.br/rastreio/{tracking_code}",
+            'JADLOG': f"https://www.jadlog.com.br/tracking?cte={tracking_code}",
+            'EXPRESS': f"https://rastreamento.dreamstorage.local/track/{tracking_code}",
+        }
+        external_url = carrier_urls.get(carrier, carrier_urls['EXPRESS'])
+
+        previous_stock = product.quantity
+        new_stock = previous_stock - quantity
+        product.quantity = new_stock
+        product.save(update_fields=['quantity', 'updated_at'])
+
+        StockMovement.objects.create(
+            product=product,
+            movement_type=StockMovement.TYPE_OUT,
+            quantity=quantity,
+            previous_stock=previous_stock,
+            new_stock=new_stock,
+            unit_cost=product.cost_price,
+            total_value=Decimal(quantity) * product.cost_price,
+            reason=f"Despacho para entrega ({carrier})",
+            reference_doc=f"Rastreio {tracking_code}",
+            performed_by="Sistema de Entregas",
+            notes=f"Destinatário: {validated_data.get('recipient_name')}, Endereço: {validated_data.get('recipient_address')}"
+        )
+
+        delivery = DeliveryOrder.objects.create(
+            product=product,
+            quantity=quantity,
+            recipient_name=validated_data.get('recipient_name'),
+            recipient_address=validated_data.get('recipient_address'),
+            recipient_phone=validated_data.get('recipient_phone', ''),
+            carrier=carrier,
+            tracking_code=tracking_code,
+            external_delivery_url=external_url,
+            status=validated_data.get('status', 'DISPATCHED'),
+            shipping_cost=validated_data.get('shipping_cost', Decimal('0.00')),
+            notes=validated_data.get('notes', '')
+        )
+        return delivery

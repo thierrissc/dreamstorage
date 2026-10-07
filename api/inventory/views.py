@@ -6,13 +6,14 @@ from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 
-from .models import Category, Supplier, Product, StockMovement, StockAlert
+from .models import Category, Supplier, Product, StockMovement, StockAlert, DeliveryOrder
 from .serializers import (
     CategorySerializer,
     SupplierSerializer,
     ProductSerializer,
     StockMovementSerializer,
     StockAlertSerializer,
+    DeliveryOrderSerializer,
 )
 
 
@@ -42,6 +43,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         supplier_id = self.request.query_params.get('supplier')
         status_filter = self.request.query_params.get('status')
         is_active = self.request.query_params.get('is_active')
+        archived = self.request.query_params.get('archived')
 
         if search:
             qs = qs.filter(
@@ -60,14 +62,67 @@ class ProductViewSet(viewsets.ModelViewSet):
         if is_active is not None and is_active != '':
             qs = qs.filter(is_active=is_active.lower() == 'true')
 
+        # Controle de exibição de itens arquivados
+        if self.action in ['archive', 'unarchive']:
+            pass
+        elif archived == 'true':
+            qs = qs.filter(is_archived=True)
+        elif archived == 'all':
+            pass  # Retorna tanto arquivados quanto não arquivados
+        else:
+            qs = qs.filter(is_archived=False)
+
         if status_filter == 'OUT_OF_STOCK':
             qs = qs.filter(quantity__lte=0)
         elif status_filter == 'LOW_STOCK':
             qs = qs.filter(quantity__gt=0, quantity__lte=F('min_stock'))
         elif status_filter == 'NORMAL':
             qs = qs.filter(quantity__gt=F('min_stock'))
+        elif status_filter == 'ARCHIVED':
+            qs = qs.filter(is_archived=True)
 
         return qs.order_by('name')
+
+    @action(detail=True, methods=['post'], url_path='archive')
+    def archive(self, request, pk=None):
+        product = self.get_object()
+        reason = request.data.get('reason', 'Arquivado manualmente pelo operador')
+        product.is_archived = True
+        product.archived_at = timezone.now()
+        product.archive_reason = reason
+        product.save(update_fields=['is_archived', 'archived_at', 'archive_reason', 'updated_at'])
+        return Response({
+            'message': f'Produto "{product.name}" arquivado com sucesso.',
+            'product': ProductSerializer(product).data
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='unarchive')
+    def unarchive(self, request, pk=None):
+        product = self.get_object()
+        product.is_archived = False
+        product.archived_at = None
+        product.archive_reason = None
+        product.save(update_fields=['is_archived', 'archived_at', 'archive_reason', 'updated_at'])
+        return Response({
+            'message': f'Produto "{product.name}" desarquivado e reativado no catálogo.',
+            'product': ProductSerializer(product).data
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='dispatch-delivery')
+    def dispatch_delivery(self, request, pk=None):
+        product = self.get_object()
+        data = request.data.copy()
+        data['product'] = product.id
+        serializer = DeliveryOrderSerializer(data=data)
+        if serializer.is_valid():
+            delivery = serializer.save()
+            product.refresh_from_db()
+            return Response({
+                'message': f'Ordem de entrega gerada com código {delivery.tracking_code}!',
+                'delivery': serializer.data,
+                'product': ProductSerializer(product).data
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'], url_path='quick-movement')
     def quick_movement(self, request, pk=None):
@@ -160,6 +215,45 @@ class StockAlertViewSet(viewsets.ReadOnlyModelViewSet):
     def mark_all_read(self, request):
         StockAlert.objects.filter(is_read=False).update(is_read=True)
         return Response({'status': 'Todos os alertas marcados como lidos'})
+
+
+class DeliveryOrderViewSet(viewsets.ModelViewSet):
+    queryset = DeliveryOrder.objects.all().select_related('product')
+    serializer_class = DeliveryOrderSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        carrier = self.request.query_params.get('carrier')
+        status_val = self.request.query_params.get('status')
+        search = self.request.query_params.get('search')
+
+        if carrier:
+            qs = qs.filter(carrier=carrier)
+        if status_val:
+            qs = qs.filter(status=status_val)
+        if search:
+            qs = qs.filter(
+                Q(tracking_code__icontains=search) |
+                Q(recipient_name__icontains=search) |
+                Q(recipient_address__icontains=search) |
+                Q(product__name__icontains=search) |
+                Q(product__sku__icontains=search)
+            )
+        return qs.order_by('-created_at')
+
+    @action(detail=True, methods=['post'], url_path='update-status')
+    def update_status(self, request, pk=None):
+        delivery = self.get_object()
+        new_status = request.data.get('status')
+        if new_status in dict(DeliveryOrder.STATUS_CHOICES):
+            delivery.status = new_status
+            delivery.save(update_fields=['status', 'updated_at'])
+            return Response({
+                'message': f'Status atualizado para {delivery.get_status_display()}',
+                'delivery': DeliveryOrderSerializer(delivery).data
+            })
+        return Response({'error': 'Status inválido'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

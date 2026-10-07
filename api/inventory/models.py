@@ -74,6 +74,9 @@ class Product(models.Model):
     max_stock = models.IntegerField(default=200, verbose_name="Estoque Máximo")
     location = models.CharField(max_length=120, blank=True, default="Setor A - Estante 1", verbose_name="Localização no Depósito")
     is_active = models.BooleanField(default=True, verbose_name="Ativo")
+    is_archived = models.BooleanField(default=False, db_index=True, verbose_name="Arquivado")
+    archived_at = models.DateTimeField(null=True, blank=True, verbose_name="Data de Arquivamento")
+    archive_reason = models.CharField(max_length=255, blank=True, null=True, verbose_name="Motivo do Arquivamento")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -162,3 +165,43 @@ class StockAlert(models.Model):
 
     def __str__(self):
         return f"Alerta {self.get_alert_type_display()} - {self.product.name}"
+
+
+class DeliveryOrder(models.Model):
+    CARRIER_CHOICES = [
+        ("CORREIOS", "Correios"),
+        ("LOGGI", "Loggi"),
+        ("MELHOR_ENVIO", "Melhor Envio"),
+        ("JADLOG", "Jadlog"),
+        ("EXPRESS", "Entrega Expressa Direta"),
+    ]
+
+    STATUS_CHOICES = [
+        ("PREPARING", "Em Preparação"),
+        ("DISPATCHED", "Despachado"),
+        ("IN_TRANSIT", "Em Trânsito"),
+        ("DELIVERED", "Entregue"),
+        ("CANCELLED", "Cancelado"),
+    ]
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="deliveries", verbose_name="Produto")
+    quantity = models.IntegerField(default=1, verbose_name="Quantidade")
+    recipient_name = models.CharField(max_length=200, verbose_name="Destinatário")
+    recipient_address = models.CharField(max_length=300, verbose_name="Endereço de Entrega")
+    recipient_phone = models.CharField(max_length=50, blank=True, verbose_name="Telefone de Contato")
+    carrier = models.CharField(max_length=50, choices=CARRIER_CHOICES, default="CORREIOS", verbose_name="Transportadora")
+    tracking_code = models.CharField(max_length=120, unique=True, db_index=True, verbose_name="Código de Rastreamento")
+    external_delivery_url = models.URLField(max_length=500, blank=True, verbose_name="Link no Site de Entregas")
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="PREPARING", verbose_name="Status da Entrega")
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"), verbose_name="Valor do Frete (R$)")
+    notes = models.TextField(blank=True, verbose_name="Instruções de Despacho")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
+
+    class Meta:
+        verbose_name = "Ordem de Entrega"
+        verbose_name_plural = "Ordens de Entrega"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Entrega {self.tracking_code} ({self.get_carrier_display()}) - {self.product.name}"
