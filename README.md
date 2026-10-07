@@ -117,16 +117,42 @@ A aplicacao estara disponivel em: `http://localhost:4200`
 
 ---
 
+## Funcionalidades de Otimizacao Logistica e Arquivamento
+
+### 1. Arquivamento Seguro de Itens (Soft-Archive)
+- **Preservacao de Historico**: Produtos descontinuados ou fora de linha podem ser arquivados informando o motivo. Todos os registros de movimentacao, saldos anteriores e custos sao integralmente preservados para auditoria contabil.
+- **Filtros por Estado**: A listagem de produtos permite alternar entre itens **Ativos**, **Arquivados** e **Todos**, mantendo a visao operacional limpa.
+- **Reativacao Instantanea**: Produtos arquivados podem ser desarquivados a qualquer momento com restauracao imediata ao catalogo ativo.
+
+### 2. Integracao com Sites de Entregas & Rastreamento Oficial
+- **Despacho Direto do Estoque**: Permite expedir produtos diretamente a partir da tela de estoque ou via API, abatendo a quantidade despachada de maneira transacional atomica (`select_for_update`).
+- **Geracao Automatica de Codigo de Rastreio**: Cria codigos de rastreamento padronizados por transportadora (ex: Correios `BR...BR`, Loggi `LG...BR`, Jadlog `JD...BR`, Melhor Envio `ME...BR`).
+- **Conexao com Portais Oficiais**: Cada ordem de entrega inclui o link direto para o site de rastreamento da transportadora responsavel:
+  - **Correios**: `https://rastreamento.correios.com.br/app/index.php?codigo={codigo}`
+  - **Loggi**: `https://www.loggi.com/rastreador/{codigo}`
+  - **Melhor Envio**: `https://melhorenvio.com.br/rastreio?tracking={codigo}`
+  - **Jadlog**: `https://www.jadlog.com.br/jadlog/tracking.jsp?cte={codigo}`
+  - **Entrega Expressa**: Rastreamento interno com chave segura.
+- **Painel Logistico de Entregas (`/entregas`)**: Visao consolidada de todos os envios, metricas de frete acumulado, filtros por transportadora e situacao da carga.
+
+---
+
 ## Rotas da API REST
 
 | Metodo | Rota | Descricao |
 | :--- | :--- | :--- |
 | GET | `/api/` | Verificacao de integridade e mapa da API |
 | GET | `/api/inventory/dashboard/` | Metricas consolidadas em tempo real |
-| GET, POST | `/api/inventory/products/` | Catalogo e cadastro de produtos |
+| GET, POST | `/api/inventory/products/` | Catalogo e cadastro de produtos (suporta `?archived=true\|false\|all`) |
+| POST | `/api/inventory/products/{id}/archive/` | Arquiva produto preservando historico contabil |
+| POST | `/api/inventory/products/{id}/unarchive/` | Reativa produto no catalogo ativo |
+| POST | `/api/inventory/products/{id}/dispatch-delivery/` | Despacha produto gerando rastreio e baixando estoque |
 | POST | `/api/inventory/products/{id}/quick-movement/` | Movimentacao rapida (entrada/saida) |
-| GET, POST | `/api/inventory/movements/` | Livro-razao de movimentacoes |
+| GET, POST | `/api/inventory/deliveries/` | Listagem e criacao de ordens de entrega logistica |
+| POST | `/api/inventory/deliveries/{id}/update_status/` | Atualizacao do status do rastreio de entrega |
+| GET, POST | `/api/inventory/movements/` | Livro-razao de movimentacoes e auditoria |
 | GET, POST | `/api/inventory/categories/` | Gestao de categorias de itens |
 | GET, POST | `/api/inventory/suppliers/` | Gestao de fornecedores homologados |
-| GET, POST | `/api/inventory/alerts/` | Consulta e arquivamento de alertas |
+| GET, POST | `/api/inventory/alerts/` | Consulta e resolucao de alertas de estoque |
 | GET | `/api/auth/profile/` | Dados do usuario autenticado e perfil |
+
