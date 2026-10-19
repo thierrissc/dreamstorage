@@ -6,6 +6,9 @@
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular_21-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white)
+![Web3](https://img.shields.io/badge/Web3-F16822?style=for-the-badge&logo=web3dotjs&logoColor=white)
+![Figma](https://img.shields.io/badge/Figma_Design-F24E1E?style=for-the-badge&logo=figma&logoColor=white)
 ![Django](https://img.shields.io/badge/Django_5-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![Django REST](https://img.shields.io/badge/DRF-A30000?style=for-the-badge&logo=django&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
@@ -15,64 +18,83 @@
 
 ## Visao Geral
 
-O **DreamStorage** e uma solucao empresarial para gestao de inventario e controle logistico de estoque, projetada segundo padroes modernos de engenharia de software e design limpo (clean aesthetic). 
+O **DreamStorage** e uma solucao empresarial para gestao de inventario, auditoria contabil e controle logistico de estoque, projetada segundo padroes modernos de engenharia de software e design de alta fidelidade (Figma design system). 
 
-A aplicacao utiliza **JavaScript como linguagem de maior uso no frontend** (desenvolvida com o framework Angular sob tipagem estatica TypeScript e compilada para JavaScript ECMAScript moderno), combinada com estilos puros em CSS3, HTML5 semantico e um motor de API em Python com Django REST Framework. A interface adota uma paleta elegante e contida em **Royal Blue** e **Creme**, com layout minimalista, navegacao fluida, responsividade total e iconografia SVG limpa sem o uso de emojis.
+A aplicacao utiliza **JavaScript como linguagem de maior uso no frontend** (desenvolvida com o framework Angular 21 sob tipagem estatica TypeScript e compilada para JavaScript ECMAScript moderno), combinada com estilos puros em CSS3, HTML5 semantico, visualizacao 3D interativa com **Three.js**, protocolo **Web3** para auditoria e um motor de API em Python com Django REST Framework. A interface adota uma paleta elegante em **Royal Blue** e **Creme**, com layout minimalista, navegacao fluida, responsividade total e iconografia SVG limpa sem o uso de emojis.
 
 ---
 
-## Pilares de Engenharia e Seguranca
+## Tecnologias e Inovacoes Integradas
 
-Em conformidade com as melhores praticas de seguranca de aplicacoes modernas:
+### 1. Gemeo Digital 3D do Armazem (Three.js)
+- Visualizacao tridimensional interativa do armazem com iluminacao em tempo real, grid holografico e estantes metalicas multi-niveis.
+- Paletes e caixas com cores categorizadas e densidades proporcionais ao estoque fisico.
+- Orbitacao 360 graus com mouse e gestos de toque, zoom suave e redefinicao de perspectiva da camera.
+- Particulas de telemetria em suspensao simulando o ambiente do armazem.
 
-1. **Isolamento de Chaves e Credenciais**: Variaveis sensiveis (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`) sao carregadas via ambiente com `python-dotenv`. O arquivo `.env` e estritamente ignorado pelo versionador (`.gitignore`).
-2. **Consultas Parametrizadas**: Toda a persistencia de dados e realizada exclusivamente atraves do ORM do Django, mitigando integralmente riscos de SQL Injection.
-3. **Controle de Acesso Baseado em Perfis (Role-Level Security)**: Distincao formal entre administradores, operadores e visualizadores, com tela dedicada de gestao de perfil e tokens (`/perfil`).
-4. **Protecao de Campos (Field Tampering)**: Campos criticos como saldos de estoque, timestamps de auditoria e totais financeiros sao marcados como `read_only` nos serializers e calculados exclusivamente no servidor sob transacao atomica (`select_for_update`).
-5. **Cookies de Sessao Seguros**: Flags `SESSION_COOKIE_HTTPONLY = True` e `CSRF_COOKIE_HTTPONLY = True` configuradas nativamente.
-6. **Headers HTTP de Seguranca**: Protecoes ativas contra clickjacking (`X-Frame-Options: DENY`), mime-sniffing (`X-Content-Type-Options: nosniff`), filtro XSS (`SECURE_BROWSER_XSS_FILTER: True`) e politicas de referencia restritas.
-7. **Respostas Enxutas (Trim API Responses)**: Serializers expõem exclusivamente os campos estritamente necessarios, sem vazamento de dados internos de infraestrutura ou senhas.
-8. **Validacao Rigorosa no Servidor**: Validacao estrita de tipos, faixas numericas positivas, unicidade de SKUs e precos em camadas de serializacao.
+### 2. Auditoria Criptografica e Ledger Web3
+- Conexao com carteiras Web3 compativeis com o padrao EIP-1193 (MetaMask, Brave Wallet, Coinbase Wallet).
+- Geracao de hashes SHA-256 para cada movimentacao de estoque e despacho logistico, assegurando a imutabilidade do livro-razao.
+- Emissao de comprovantes criptograficos on-chain e contadores de auditoria descentralizada.
+
+### 3. Design System de Alta Fidelidade (Padrao Figma)
+- Sistema estruturado de tokens: paleta Royal Blue, tons cremes com acabamento dourado, radii consistentes e elevacoes em blur com saturacao calibrada.
+- Componentes com microinteracoes tatil-reativas nos estados hover e active.
+- Ausencia de poluicao visual, mantendo uma experiencia de usuario fluida e profissional.
+
+### 4. Arquivamento Seguro de Itens (Soft-Archive)
+- Produtos descontinuados ou fora de linha podem ser arquivados registrando motivo e data.
+- Todos os registros historicos, movimentacoes previas e saldos contabeis sao preservados integralmente para auditorias fiscais.
+- Alternancia instantanea entre produtos Ativos, Arquivados e Todos, com reativacao em um clique.
+
+### 5. Integracao com Sites de Entregas & Rastreamento Oficial
+- Expedicao direta a partir do catalogo com baixa transacional atomica via `select_for_update`.
+- Codigos padronizados por transportadora (Correios, Loggi, Melhor Envio, Jadlog e Expressa).
+- Conexao direta com as URLs oficiais de rastreamento das transportadoras.
+- Painel logistico dedicado de entregas em `/entregas`.
 
 ---
 
 ## Estrutura do Repositorio
 
-A estrutura do projeto adota organizacao unificada (sem pastas genericas separadas `frontend`/`backend`), agrupando o motor de API e a aplicacao cliente em uma raiz coesa:
-
 ```
 dreamstorage/
-├── api/                           # Motor de regras de negocio (Django REST Framework)
-│   ├── authentication/            # Usuarios, permissoes e testes de perfil
-│   ├── dreamstorage_core/         # Configuracoes do projeto (settings, urls, asgi/wsgi)
-│   └── inventory/                 # Modulo de inventario
-│       ├── management/commands/   # Comando seed_data para carga inicial
-│       ├── migrations/            # Versionamento de esquemas de banco
-│       ├── models.py              # Entidades relacionais (Product, Category, Movement, Alert)
-│       ├── serializers.py         # Validacao, atomicidade e regras de negocio
-│       ├── tests.py               # Testes automatizados de seguranca e estoque
-│       └── views.py               # Endpoints REST e metricas do dashboard
-├── src/                           # Aplicacao Angular 21 (Client Architecture)
+├── api/
+│   ├── authentication/
+│   ├── dreamstorage_core/
+│   └── inventory/
+│       ├── management/commands/
+│       ├── migrations/
+│       ├── models.py
+│       ├── serializers.py
+│       ├── tests.py
+│       └── views.py
+├── src/
 │   ├── app/
-│   │   ├── components/ui/         # Primitivos modulares (Button, Badge, Card)
-│   │   ├── core/services/         # Servicos singleton (InventoryService, AuthService, ToastService)
-│   │   ├── features/              # Modulos funcionais
-│   │   │   ├── categories/        # Gestao de categorias e fornecedores
-│   │   │   ├── dashboard/         # Painel analitico e operacoes rapidas
-│   │   │   ├── movements/         # Historico e livro-razao de movimentacoes
-│   │   │   ├── products/          # Catalogo de itens e controle de saldos
-│   │   │   └── profile/           # Perfil de usuario e painel de controle de acesso
-│   │   ├── models/                # Interfaces de dados TypeScript
-│   │   └── shared/components/     # Componentes globais (Navbar, Sidebar, ToastContainer)
-│   ├── styles.css                 # Design Tokens (Royal Blue, Creme, Glass)
-│   ├── index.html                 # HTML semantico
-│   └── main.ts                    # Ponto de entrada Angular
-├── public/                        # Ativos estaticos
-├── angular.json                   # Configuracoes de compilacao Angular
-├── package.json                   # Dependencias e scripts de execucao Node/Angular
-├── requirements.txt               # Dependencias Python consolidadas na raiz
-├── manage.py                      # Ponto de entrada unificado para comandos Django
-├── .env.example                   # Exemplo de configuracao de variaveis de ambiente
+│   │   ├── components/ui/
+│   │   ├── core/services/
+│   │   ├── features/
+│   │   │   ├── categories/
+│   │   │   ├── dashboard/
+│   │   │   ├── deliveries/
+│   │   │   ├── movements/
+│   │   │   ├── products/
+│   │   │   └── profile/
+│   │   ├── models/
+│   │   └── shared/components/
+│   │       ├── navbar/
+│   │       ├── sidebar/
+│   │       ├── toast-container/
+│   │       └── warehouse-3d/
+│   ├── styles.css
+│   ├── index.html
+│   └── main.ts
+├── public/
+├── angular.json
+├── package.json
+├── requirements.txt
+├── manage.py
+├── .env.example
 └── README.md
 ```
 
@@ -87,19 +109,10 @@ dreamstorage/
 ### 2. Backend (API Django REST)
 A partir da raiz do projeto:
 ```bash
-# Instalacao de dependencias
 pip install -r requirements.txt
-
-# Execucao de migracoes de banco
 python manage.py migrate
-
-# Carga de dados inicial para testes
 python manage.py seed_data
-
-# Execucao da suite de testes automatizados
-python manage.py test authentication inventory
-
-# Inicializacao do servidor de desenvolvimento
+python manage.py test inventory authentication
 python manage.py runserver 8000
 ```
 A API estara ativa em: `http://localhost:8000/api/`
@@ -107,33 +120,10 @@ A API estara ativa em: `http://localhost:8000/api/`
 ### 3. Frontend (Interface Angular)
 A partir da raiz do projeto:
 ```bash
-# Instalacao de dependencias
 npm install
-
-# Compilacao em modo desenvolvimento
 npm start
 ```
 A aplicacao estara disponivel em: `http://localhost:4200`
-
----
-
-## Funcionalidades de Otimizacao Logistica e Arquivamento
-
-### 1. Arquivamento Seguro de Itens (Soft-Archive)
-- **Preservacao de Historico**: Produtos descontinuados ou fora de linha podem ser arquivados informando o motivo. Todos os registros de movimentacao, saldos anteriores e custos sao integralmente preservados para auditoria contabil.
-- **Filtros por Estado**: A listagem de produtos permite alternar entre itens **Ativos**, **Arquivados** e **Todos**, mantendo a visao operacional limpa.
-- **Reativacao Instantanea**: Produtos arquivados podem ser desarquivados a qualquer momento com restauracao imediata ao catalogo ativo.
-
-### 2. Integracao com Sites de Entregas & Rastreamento Oficial
-- **Despacho Direto do Estoque**: Permite expedir produtos diretamente a partir da tela de estoque ou via API, abatendo a quantidade despachada de maneira transacional atomica (`select_for_update`).
-- **Geracao Automatica de Codigo de Rastreio**: Cria codigos de rastreamento padronizados por transportadora (ex: Correios `BR...BR`, Loggi `LG...BR`, Jadlog `JD...BR`, Melhor Envio `ME...BR`).
-- **Conexao com Portais Oficiais**: Cada ordem de entrega inclui o link direto para o site de rastreamento da transportadora responsavel:
-  - **Correios**: `https://rastreamento.correios.com.br/app/index.php?codigo={codigo}`
-  - **Loggi**: `https://www.loggi.com/rastreador/{codigo}`
-  - **Melhor Envio**: `https://melhorenvio.com.br/rastreio?tracking={codigo}`
-  - **Jadlog**: `https://www.jadlog.com.br/jadlog/tracking.jsp?cte={codigo}`
-  - **Entrega Expressa**: Rastreamento interno com chave segura.
-- **Painel Logistico de Entregas (`/entregas`)**: Visao consolidada de todos os envios, metricas de frete acumulado, filtros por transportadora e situacao da carga.
 
 ---
 
@@ -155,4 +145,3 @@ A aplicacao estara disponivel em: `http://localhost:4200`
 | GET, POST | `/api/inventory/suppliers/` | Gestao de fornecedores homologados |
 | GET, POST | `/api/inventory/alerts/` | Consulta e resolucao de alertas de estoque |
 | GET | `/api/auth/profile/` | Dados do usuario autenticado e perfil |
-
