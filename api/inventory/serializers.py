@@ -3,20 +3,14 @@ from django.db import transaction
 from decimal import Decimal
 import uuid
 from .models import Category, Supplier, Product, StockMovement, StockAlert, DeliveryOrder
-
-
 class CategorySerializer(serializers.ModelSerializer):
     products_count = serializers.IntegerField(source='products.count', read_only=True)
-
     class Meta:
         model = Category
         fields = ['id', 'name', 'slug', 'description', 'color', 'icon', 'products_count', 'created_at']
         read_only_fields = ['id', 'slug', 'created_at']
-
-
 class SupplierSerializer(serializers.ModelSerializer):
     products_count = serializers.IntegerField(source='products.count', read_only=True)
-
     class Meta:
         model = Supplier
         fields = [
@@ -24,8 +18,6 @@ class SupplierSerializer(serializers.ModelSerializer):
             'address', 'notes', 'products_count', 'created_at'
         ]
         read_only_fields = ['id', 'created_at']
-
-
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_color = serializers.CharField(source='category.color', read_only=True)
@@ -34,7 +26,6 @@ class ProductSerializer(serializers.ModelSerializer):
     total_cost_value = serializers.ReadOnlyField()
     total_selling_value = serializers.ReadOnlyField()
     margin_percentage = serializers.ReadOnlyField()
-
     class Meta:
         model = Product
         fields = [
@@ -49,7 +40,6 @@ class ProductSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'archived_at', 'created_at', 'updated_at']
-
     def validate_sku(self, value):
         sku_clean = value.strip().upper()
         qs = Product.objects.filter(sku__iexact=sku_clean)
@@ -58,7 +48,6 @@ class ProductSerializer(serializers.ModelSerializer):
         if qs.exists():
             raise serializers.ValidationError("Este SKU já está em uso por outro produto.")
         return sku_clean
-
     def validate(self, data):
         cost = data.get('cost_price', self.instance.cost_price if self.instance else Decimal('0.00'))
         selling = data.get('selling_price', self.instance.selling_price if self.instance else Decimal('0.00'))
@@ -73,14 +62,11 @@ class ProductSerializer(serializers.ModelSerializer):
         if max_stock < min_stock:
             raise serializers.ValidationError({"max_stock": "O estoque máximo deve ser maior ou igual ao mínimo."})
         return data
-
-
 class StockMovementSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_sku = serializers.CharField(source='product.sku', read_only=True)
     product_unit = serializers.CharField(source='product.unit_measure', read_only=True)
     movement_type_display = serializers.CharField(source='get_movement_type_display', read_only=True)
-
     class Meta:
         model = StockMovement
         fields = [
@@ -90,40 +76,31 @@ class StockMovementSerializer(serializers.ModelSerializer):
             'reason', 'reference_doc', 'performed_by', 'notes', 'created_at'
         ]
         read_only_fields = ['id', 'previous_stock', 'new_stock', 'total_value', 'created_at']
-
     def validate_quantity(self, value):
         if value <= 0:
             raise serializers.ValidationError("A quantidade deve ser estritamente maior que zero.")
         return value
-
     def validate(self, data):
         product = data.get('product')
         movement_type = data.get('movement_type')
         quantity = data.get('quantity')
-
         if movement_type == StockMovement.TYPE_OUT:
             if product.quantity < quantity:
                 raise serializers.ValidationError({
                     "quantity": f"Estoque insuficiente! Saldo atual é {product.quantity}, tentativa de saída: {quantity}."
                 })
         return data
-
     @transaction.atomic
     def create(self, validated_data):
         product = validated_data['product']
-        # Bloqueia a linha no banco para evitar race conditions simultaneas
         product = Product.objects.select_for_update().get(pk=product.pk)
-        
         movement_type = validated_data['movement_type']
         quantity = validated_data['quantity']
         unit_cost = validated_data.get('unit_cost') or product.cost_price
-
         previous_stock = product.quantity
-
         if movement_type == StockMovement.TYPE_IN:
             new_stock = previous_stock + quantity
             if unit_cost:
-                # Atualiza custo médio ponderado se entrada tiver custo
                 pass
         elif movement_type == StockMovement.TYPE_OUT:
             if previous_stock < quantity:
@@ -132,18 +109,13 @@ class StockMovementSerializer(serializers.ModelSerializer):
                 })
             new_stock = previous_stock - quantity
         elif movement_type == StockMovement.TYPE_ADJUST:
-            # Em ajuste, a quantidade informada é o novo saldo real apurado
             new_stock = quantity
             quantity = abs(new_stock - previous_stock)
         else:
             new_stock = previous_stock
-
         total_value = Decimal(quantity) * (unit_cost if unit_cost else product.cost_price)
-
         product.quantity = new_stock
         product.save(update_fields=['quantity', 'updated_at'])
-
-        # Atualiza alertas
         if new_stock <= 0:
             StockAlert.objects.get_or_create(
                 product=product,
@@ -157,9 +129,7 @@ class StockMovementSerializer(serializers.ModelSerializer):
                 defaults={'message': f"O produto {product.name} atingiu nível crítico: {new_stock} unidades restantes."}
             )
         else:
-            # Se voltou a ter estoque saudável, marca alertas antigos como lidos
             StockAlert.objects.filter(product=product).update(is_read=True)
-
         movement = StockMovement.objects.create(
             product=product,
             movement_type=movement_type,
@@ -174,14 +144,11 @@ class StockMovementSerializer(serializers.ModelSerializer):
             notes=validated_data.get('notes', '')
         )
         return movement
-
-
 class StockAlertSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_sku = serializers.CharField(source='product.sku', read_only=True)
     current_quantity = serializers.IntegerField(source='product.quantity', read_only=True)
     min_stock = serializers.IntegerField(source='product.min_stock', read_only=True)
-
     class Meta:
         model = StockAlert
         fields = [
@@ -189,14 +156,11 @@ class StockAlertSerializer(serializers.ModelSerializer):
             'current_quantity', 'min_stock', 'alert_type',
             'message', 'is_read', 'created_at'
         ]
-
-
 class DeliveryOrderSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_sku = serializers.CharField(source='product.sku', read_only=True)
     carrier_display = serializers.CharField(source='get_carrier_display', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
-
     class Meta:
         model = DeliveryOrder
         fields = [
@@ -208,12 +172,10 @@ class DeliveryOrderSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'tracking_code', 'external_delivery_url', 'created_at', 'updated_at']
-
     def validate_quantity(self, value):
         if value <= 0:
             raise serializers.ValidationError("A quantidade para entrega deve ser maior que zero.")
         return value
-
     def validate(self, data):
         product = data.get('product')
         quantity = data.get('quantity', 1)
@@ -224,20 +186,16 @@ class DeliveryOrderSerializer(serializers.ModelSerializer):
                 "quantity": f"Estoque insuficiente para entrega. Saldo atual: {product.quantity}, solicitado: {quantity}."
             })
         return data
-
     @transaction.atomic
     def create(self, validated_data):
         product = validated_data['product']
         quantity = validated_data.get('quantity', 1)
         carrier = validated_data.get('carrier', 'CORREIOS')
-
-        # Bloqueia a linha no banco de dados para evitar race condition
         product = Product.objects.select_for_update().get(pk=product.pk)
         if product.quantity < quantity:
             raise serializers.ValidationError({
                 "quantity": f"Estoque insuficiente. Saldo atual: {product.quantity}."
             })
-
         carrier_prefix = {
             'CORREIOS': 'BR',
             'LOGGI': 'LG',
@@ -247,7 +205,6 @@ class DeliveryOrderSerializer(serializers.ModelSerializer):
         }.get(carrier, 'DS')
         unique_token = uuid.uuid4().hex[:8].upper()
         tracking_code = f"{carrier_prefix}{unique_token}BR"
-
         carrier_urls = {
             'CORREIOS': f"https://rastreamento.correios.com.br/app/index.php?codigo={tracking_code}",
             'LOGGI': f"https://www.loggi.com/rastreador/{tracking_code}",
@@ -256,12 +213,10 @@ class DeliveryOrderSerializer(serializers.ModelSerializer):
             'EXPRESS': f"https://rastreamento.dreamstorage.local/track/{tracking_code}",
         }
         external_url = carrier_urls.get(carrier, carrier_urls['EXPRESS'])
-
         previous_stock = product.quantity
         new_stock = previous_stock - quantity
         product.quantity = new_stock
         product.save(update_fields=['quantity', 'updated_at'])
-
         StockMovement.objects.create(
             product=product,
             movement_type=StockMovement.TYPE_OUT,
@@ -275,7 +230,6 @@ class DeliveryOrderSerializer(serializers.ModelSerializer):
             performed_by="Sistema de Entregas",
             notes=f"Destinatário: {validated_data.get('recipient_name')}, Endereço: {validated_data.get('recipient_address')}"
         )
-
         delivery = DeliveryOrder.objects.create(
             product=product,
             quantity=quantity,

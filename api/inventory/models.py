@@ -1,8 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
 from decimal import Decimal
-
-
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="Nome da Categoria")
     slug = models.SlugField(max_length=120, unique=True, blank=True)
@@ -10,21 +8,16 @@ class Category(models.Model):
     color = models.CharField(max_length=20, default="#2563eb", verbose_name="Cor Identificadora")
     icon = models.CharField(max_length=50, default="layers", verbose_name="Ícone")
     created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         verbose_name = "Categoria"
         verbose_name_plural = "Categorias"
         ordering = ["name"]
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-
     def __str__(self):
         return self.name
-
-
 class Supplier(models.Model):
     name = models.CharField(max_length=200, verbose_name="Razão Social / Nome")
     cnpj_cpf = models.CharField(max_length=25, blank=True, verbose_name="CNPJ / CPF")
@@ -34,16 +27,12 @@ class Supplier(models.Model):
     address = models.TextField(blank=True, verbose_name="Endereço Completo")
     notes = models.TextField(blank=True, verbose_name="Observações")
     created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         verbose_name = "Fornecedor"
         verbose_name_plural = "Fornecedores"
         ordering = ["name"]
-
     def __str__(self):
         return self.name
-
-
 class Product(models.Model):
     UNIT_CHOICES = [
         ("UN", "Unidade"),
@@ -55,7 +44,6 @@ class Product(models.Model):
         ("PAR", "Par"),
         ("KIT", "Kit"),
     ]
-
     sku = models.CharField(max_length=60, unique=True, db_index=True, verbose_name="SKU / Código Único")
     barcode = models.CharField(max_length=100, blank=True, null=True, db_index=True, verbose_name="Código de Barras (EAN)")
     name = models.CharField(max_length=255, verbose_name="Nome do Produto")
@@ -79,12 +67,10 @@ class Product(models.Model):
     archive_reason = models.CharField(max_length=255, blank=True, null=True, verbose_name="Motivo do Arquivamento")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     class Meta:
         verbose_name = "Produto"
         verbose_name_plural = "Produtos"
         ordering = ["name"]
-
     @property
     def stock_status(self):
         if self.quantity <= 0:
@@ -92,37 +78,29 @@ class Product(models.Model):
         elif self.quantity <= self.min_stock:
             return "LOW_STOCK"
         return "NORMAL"
-
     @property
     def total_cost_value(self):
         return round(Decimal(self.quantity) * self.cost_price, 2)
-
     @property
     def total_selling_value(self):
         return round(Decimal(self.quantity) * self.selling_price, 2)
-
     @property
     def margin_percentage(self):
         if self.cost_price > Decimal("0.00"):
             margin = ((self.selling_price - self.cost_price) / self.cost_price) * 100
             return round(margin, 2)
         return Decimal("0.00")
-
     def __str__(self):
         return f"{self.sku} - {self.name} ({self.quantity} {self.unit_measure})"
-
-
 class StockMovement(models.Model):
     TYPE_IN = "IN"
     TYPE_OUT = "OUT"
     TYPE_ADJUST = "ADJUST"
-
     MOVEMENT_TYPES = [
         (TYPE_IN, "Entrada (+ Inventário)"),
         (TYPE_OUT, "Saída (- Inventário)"),
         (TYPE_ADJUST, "Ajuste / Balanço Físico"),
     ]
-
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="movements", verbose_name="Produto")
     movement_type = models.CharField(max_length=10, choices=MOVEMENT_TYPES, verbose_name="Tipo de Movimento")
     quantity = models.IntegerField(verbose_name="Quantidade Movimentada")
@@ -135,38 +113,28 @@ class StockMovement(models.Model):
     performed_by = models.CharField(max_length=120, default="Administrador", verbose_name="Responsável")
     notes = models.TextField(blank=True, verbose_name="Observações Adicionais")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data / Hora")
-
     class Meta:
         verbose_name = "Movimentação de Estoque"
         verbose_name_plural = "Movimentações de Estoque"
         ordering = ["-created_at"]
-
     def __str__(self):
         return f"[{self.get_movement_type_display()}] {self.product.name} (Qtd: {self.quantity}) em {self.created_at.strftime('%d/%m/%Y %H:%M')}"
-
-
 class StockAlert(models.Model):
     ALERT_LOW = "LOW_STOCK"
     ALERT_OUT = "OUT_OF_STOCK"
-
     ALERT_TYPES = [
         (ALERT_LOW, "Estoque Baixo"),
         (ALERT_OUT, "Ruptura Total (Esgotado)"),
     ]
-
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="alerts")
     alert_type = models.CharField(max_length=20, choices=ALERT_TYPES)
     message = models.CharField(max_length=255)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         ordering = ["-created_at"]
-
     def __str__(self):
         return f"Alerta {self.get_alert_type_display()} - {self.product.name}"
-
-
 class DeliveryOrder(models.Model):
     CARRIER_CHOICES = [
         ("CORREIOS", "Correios"),
@@ -175,7 +143,6 @@ class DeliveryOrder(models.Model):
         ("JADLOG", "Jadlog"),
         ("EXPRESS", "Entrega Expressa Direta"),
     ]
-
     STATUS_CHOICES = [
         ("PREPARING", "Em Preparação"),
         ("DISPATCHED", "Despachado"),
@@ -183,7 +150,6 @@ class DeliveryOrder(models.Model):
         ("DELIVERED", "Entregue"),
         ("CANCELLED", "Cancelado"),
     ]
-
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="deliveries", verbose_name="Produto")
     quantity = models.IntegerField(default=1, verbose_name="Quantidade")
     recipient_name = models.CharField(max_length=200, verbose_name="Destinatário")
@@ -197,11 +163,9 @@ class DeliveryOrder(models.Model):
     notes = models.TextField(blank=True, verbose_name="Instruções de Despacho")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
-
     class Meta:
         verbose_name = "Ordem de Entrega"
         verbose_name_plural = "Ordens de Entrega"
         ordering = ["-created_at"]
-
     def __str__(self):
         return f"Entrega {self.tracking_code} ({self.get_carrier_display()}) - {self.product.name}"

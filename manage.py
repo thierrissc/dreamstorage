@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 DreamStorage - Root Django CLI Execution Entrypoint
 Allows executing Django commands directly from project root:
@@ -9,14 +8,10 @@ Allows executing Django commands directly from project root:
 import os
 import sys
 from pathlib import Path
-
-# Add api directory to sys.path so Django apps are discoverable
 BASE_DIR = Path(__file__).resolve().parent
 API_DIR = BASE_DIR / 'api'
 if str(API_DIR) not in sys.path:
     sys.path.insert(0, str(API_DIR))
-
-
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dreamstorage_core.settings')
     try:
@@ -27,7 +22,5 @@ def main():
             "available on your PYTHONPATH environment variable?"
         ) from exc
     execute_from_command_line(sys.argv)
-
-
 if __name__ == '__main__':
     main()
