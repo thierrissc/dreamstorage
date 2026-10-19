@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { InventoryService } from '../../../core/services/inventory.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { Web3Service } from '../../../core/services/web3.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,10 +14,9 @@ import { ToastService } from '../../../core/services/toast.service';
   template: `
     <header class="navbar-wrapper">
       <div class="navbar-container">
-        <!-- Logo & Brand -->
         <a routerLink="/" class="brand-link">
           <div class="brand-icon-box">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
               <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
               <line x1="12" y1="22.08" x2="12" y2="12"></line>
@@ -24,13 +24,12 @@ import { ToastService } from '../../../core/services/toast.service';
           </div>
           <div class="brand-text">
             <span class="brand-title">Dream<span class="brand-accent">Storage</span></span>
-            <span class="brand-tag">INVENTORY CORE</span>
+            <span class="brand-tag">INVENTORY CORE 3.0</span>
           </div>
         </a>
 
-        <!-- Global Search Bar -->
         <div class="search-box">
-          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
@@ -41,26 +40,40 @@ import { ToastService } from '../../../core/services/toast.service';
             placeholder="Pesquisar por SKU, produto ou prateleira..."
             class="search-input"
           />
-          <span class="search-shortcut">↵ Enter</span>
+          <span class="search-shortcut">Enter</span>
         </div>
 
-        <!-- Right Actions -->
         <div class="nav-actions">
-          <!-- Backend Status Indicator -->
+          <button 
+            type="button"
+            class="web3-wallet-btn" 
+            [class.connected]="web3Service.isConnected()"
+            (click)="handleWalletAction()"
+            title="Conectar Carteira Web3 para Auditoria Criptográfica"
+          >
+            <span class="web3-pulse-dot" *ngIf="web3Service.isConnected()"></span>
+            <svg *ngIf="!web3Service.isConnected()" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+              <circle cx="17" cy="12" r="2"></circle>
+              <path d="M6 12h.01M10 12h.01"></path>
+            </svg>
+            <span class="font-mono">{{ web3Service.isConnected() ? web3Service.getShortAddress() : 'Conectar Web3' }}</span>
+          </button>
+
           <div class="status-indicator">
             <span class="status-dot"></span>
             <span class="status-label">Sistema Ativo</span>
           </div>
 
-          <!-- Alerts Dropdown Trigger -->
           <div class="alerts-dropdown-wrapper">
             <button 
               class="icon-btn" 
               (click)="toggleAlerts()" 
               [class.active]="showAlerts()"
               title="Alertas de Estoque"
+              aria-label="Alertas de Estoque"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
               </svg>
@@ -69,7 +82,6 @@ import { ToastService } from '../../../core/services/toast.service';
               </span>
             </button>
 
-            <!-- Alerts Flyout Menu -->
             <div *ngIf="showAlerts()" class="alerts-dropdown-menu">
               <div class="alerts-header">
                 <div class="alerts-title-box">
@@ -116,8 +128,7 @@ import { ToastService } from '../../../core/services/toast.service';
             </div>
           </div>
 
-          <!-- User Profile Chip -->
-          <a routerLink="/perfil" class="user-chip" title="Gerenciar Perfil e Seguranca">
+          <a routerLink="/perfil" class="user-chip" title="Gerenciar Perfil e Segurança">
             <div class="avatar-cream">
               {{ authService.currentUser().username.charAt(0).toUpperCase() }}
             </div>
@@ -135,7 +146,9 @@ import { ToastService } from '../../../core/services/toast.service';
       position: sticky;
       top: 0;
       z-index: 500;
-      background: var(--bg-secondary);
+      background: rgba(11, 20, 44, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border-subtle);
     }
     .navbar-container {
@@ -148,7 +161,6 @@ import { ToastService } from '../../../core/services/toast.service';
       gap: 20px;
     }
 
-    /* Brand */
     .brand-link {
       display: flex;
       align-items: center;
@@ -157,14 +169,15 @@ import { ToastService } from '../../../core/services/toast.service';
       color: inherit;
     }
     .brand-icon-box {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      background: var(--royal-500);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--royal-500) 0%, var(--royal-600) 100%);
       color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
     }
     .brand-text {
       display: flex;
@@ -172,153 +185,171 @@ import { ToastService } from '../../../core/services/toast.service';
     }
     .brand-title {
       font-family: var(--font-heading);
-      font-size: 1.15rem;
+      font-size: 1.18rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--cream-50);
+      line-height: 1.1;
     }
     .brand-accent {
-      color: var(--royal-400);
+      color: var(--royal-300);
     }
     .brand-tag {
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      font-weight: 600;
-      color: var(--text-muted);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      color: var(--cream-400);
       text-transform: uppercase;
     }
 
-    /* Search */
     .search-box {
       position: relative;
       flex: 1;
-      max-width: 400px;
+      max-width: 380px;
     }
     .search-icon {
       position: absolute;
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--text-muted);
+      color: var(--cream-400);
       pointer-events: none;
     }
     .search-input {
       width: 100%;
       background: var(--bg-input);
       border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 8px 70px 8px 36px;
+      border-radius: var(--radius-pill);
+      padding: 8px 64px 8px 36px;
       color: var(--text-primary);
       font-family: var(--font-sans);
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       outline: none;
-      transition: border-color var(--transition-fast);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     }
     .search-input:focus {
       border-color: var(--royal-400);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
     .search-shortcut {
       position: absolute;
       right: 10px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.68rem;
+      color: var(--cream-muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: var(--radius-xs);
     }
 
-    /* Actions */
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
+
+    .web3-wallet-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(147, 51, 234, 0.14);
+      border: 1px solid rgba(192, 132, 252, 0.35);
+      color: #e9d5ff;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .web3-wallet-btn:hover {
+      background: rgba(147, 51, 234, 0.25);
+      border-color: rgba(192, 132, 252, 0.65);
+      color: #ffffff;
+    }
+    .web3-wallet-btn.connected {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #a7f3d0;
+    }
+
     .status-indicator {
       display: flex;
       align-items: center;
       gap: 6px;
       padding: 5px 10px;
-      background: var(--status-success-bg);
-      border: 1px solid var(--status-success-border);
-      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
     }
     .status-dot {
-      width: 6px;
-      height: 6px;
-      background: #10b981;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
     }
     .status-label {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: #34d399;
+      font-size: 0.74rem;
+      color: var(--cream-300);
+      font-weight: 600;
     }
 
-    /* Alerts */
     .alerts-dropdown-wrapper {
       position: relative;
     }
     .icon-btn {
-      position: relative;
-      background: rgba(16, 33, 84, 0.6);
-      border: 1px solid rgba(235, 224, 198, 0.16);
-      color: var(--cream-200);
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--cream-300);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      position: relative;
+      transition: all var(--transition-fast);
     }
     .icon-btn:hover, .icon-btn.active {
-      background: rgba(22, 45, 115, 0.85);
-      color: var(--cream-50);
-      border-color: rgba(251, 247, 238, 0.35);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border-color: var(--border-medium);
     }
     .alerts-badge {
       position: absolute;
       top: -4px;
       right: -4px;
-      background: #f43f5e;
-      color: white;
-      font-size: 0.68rem;
-      font-weight: 800;
-      width: 19px;
-      height: 19px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--royal-950);
-      box-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
     }
 
-    /* Alerts Dropdown */
     .alerts-dropdown-menu {
       position: absolute;
-      top: 50px;
+      top: calc(100% + 10px);
       right: 0;
-      width: 380px;
-      background: rgba(10, 20, 52, 0.96);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(235, 224, 198, 0.25);
-      border-radius: 18px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(48, 98, 234, 0.2);
+      width: 340px;
+      background: var(--bg-card-solid);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
       overflow: hidden;
-      z-index: 1000;
-      animation: scaleUp 0.18s ease-out;
+      z-index: 600;
     }
     .alerts-header {
-      padding: 14px 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
     }
     .alerts-title-box {
       display: flex;
@@ -326,123 +357,124 @@ import { ToastService } from '../../../core/services/toast.service';
       gap: 8px;
     }
     .alerts-title {
+      font-size: 0.85rem;
       font-weight: 700;
-      font-size: 0.9rem;
       color: var(--cream-50);
     }
     .btn-text-cream {
       background: none;
       border: none;
-      color: var(--cream-400);
-      font-size: 0.78rem;
-      font-weight: 600;
+      font-size: 0.74rem;
+      color: var(--royal-300);
       cursor: pointer;
+      font-weight: 600;
     }
     .btn-text-cream:hover {
-      color: var(--cream-100);
-      text-decoration: underline;
+      color: #ffffff;
     }
+
     .alerts-list {
       max-height: 280px;
       overflow-y: auto;
-      padding: 8px 0;
     }
     .alerts-empty {
-      padding: 24px;
+      padding: 24px 16px;
       text-align: center;
-      color: var(--cream-300);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
+      color: var(--cream-muted);
     }
     .alert-item {
-      padding: 10px 16px;
+      padding: 10px 14px;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      transition: background 0.15s;
+      gap: 10px;
+      border-bottom: 1px solid rgba(235, 224, 198, 0.05);
+      transition: background var(--transition-fast);
     }
     .alert-item:hover {
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.03);
     }
     .alert-item-content {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
     .alert-item-title {
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      color: var(--cream-100);
-      margin-bottom: 4px;
+      color: var(--cream-50);
     }
     .alert-item-sub {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .alert-qty {
-      font-size: 0.76rem;
-      color: #fbbf24;
-    }
-    .alert-out .alert-qty {
-      color: #fb7185;
-      font-weight: 600;
+      font-size: 0.72rem;
+      color: var(--cream-300);
     }
     .alert-dismiss {
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.3);
+      color: var(--cream-muted);
       cursor: pointer;
-      font-size: 14px;
-      padding: 2px 6px;
+      padding: 4px;
+      border-radius: var(--radius-xs);
     }
     .alert-dismiss:hover {
-      color: #fff;
-    }
-    .alerts-footer {
-      padding: 12px 18px;
-      background: rgba(6, 12, 32, 0.6);
-      text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .alerts-view-all {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--royal-300);
-      text-decoration: none;
-    }
-    .alerts-view-all:hover {
-      color: var(--cream-100);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
     }
 
-    /* User Profile */
+    .alerts-footer {
+      padding: 10px 14px;
+      text-align: center;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(5, 10, 24, 0.5);
+    }
+    .alerts-view-all {
+      font-size: 0.78rem;
+      color: var(--royal-300);
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .alerts-view-all:hover {
+      color: #ffffff;
+    }
+
     .user-chip {
       display: flex;
       align-items: center;
-      gap: 9px;
-      padding: 4px 10px 4px 4px;
+      gap: 8px;
+      padding: 3px 10px 3px 3px;
       background: var(--bg-input);
       border: 1px solid var(--border-subtle);
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       text-decoration: none;
       color: inherit;
       cursor: pointer;
-      transition: background var(--transition-fast), border-color var(--transition-fast);
+      transition: all var(--transition-fast);
     }
     .user-chip:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--border-medium);
+      background: rgba(255, 255, 255, 0.06);
     }
     .avatar-cream {
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: var(--cream-200);
-      color: #0f172a;
-      font-weight: 700;
+      background: linear-gradient(135deg, var(--cream-100) 0%, var(--cream-200) 100%);
+      color: #0b142c;
+      font-weight: 800;
       font-size: 0.8rem;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 0 8px rgba(238, 232, 218, 0.3);
     }
     .user-info {
       display: flex;
@@ -450,13 +482,13 @@ import { ToastService } from '../../../core/services/toast.service';
     }
     .user-name {
       font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-primary);
+      font-weight: 600;
+      color: var(--cream-50);
       line-height: 1.1;
     }
     .user-role {
       font-size: 0.65rem;
-      color: var(--text-muted);
+      color: var(--cream-muted);
     }
 
     @media (max-width: 900px) {
@@ -473,33 +505,47 @@ export class NavbarComponent {
   inventoryService = inject(InventoryService);
   authService = inject(AuthService);
   toast = inject(ToastService);
+  web3Service = inject(Web3Service);
   router = inject(Router);
 
   searchQuery = '';
   showAlerts = signal<boolean>(false);
 
-  unreadAlertsCount() {
+  unreadAlertsCount(): number {
     return this.inventoryService.alerts().length;
   }
 
-  toggleAlerts() {
+  toggleAlerts(): void {
     this.showAlerts.update(v => !v);
   }
 
-  dismissAlert(id: number) {
+  async handleWalletAction(): Promise<void> {
+    if (this.web3Service.isConnected()) {
+      this.toast.info(`Carteira conectada: ${this.web3Service.getShortAddress()}`);
+      return;
+    }
+    try {
+      const addr = await this.web3Service.connectWallet();
+      this.toast.success(`Carteira Web3 conectada: ${this.web3Service.getShortAddress(addr)}`);
+    } catch (err: any) {
+      this.toast.error(err.message || 'Erro ao conectar carteira Web3');
+    }
+  }
+
+  dismissAlert(id: number): void {
     this.inventoryService.markAlertRead(id).subscribe(() => {
       this.toast.info('Alerta arquivado');
     });
   }
 
-  markAllAsRead() {
+  markAllAsRead(): void {
     const list = [...this.inventoryService.alerts()];
     list.forEach(a => this.inventoryService.markAlertRead(a.id).subscribe());
     this.showAlerts.set(false);
     this.toast.success('Todos os alertas foram marcados como lidos');
   }
 
-  onSearch() {
+  onSearch(): void {
     if (this.searchQuery.trim()) {
       this.router.navigate(['/produtos'], { queryParams: { q: this.searchQuery } });
     }

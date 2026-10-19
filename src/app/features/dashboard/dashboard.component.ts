@@ -4,21 +4,28 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ToastService } from '../../core/services/toast.service';
+import { Web3Service } from '../../core/services/web3.service';
+import { Warehouse3dComponent } from '../../shared/components/warehouse-3d/warehouse-3d.component';
 import { Product } from '../../models/inventory.models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, Warehouse3dComponent],
   template: `
     <div class="dashboard-page">
-      <!-- Page Header -->
       <div class="page-header">
-        <div>
-          <h1 class="page-title">Visão Geral</h1>
-          <p class="page-desc">Controle operacional e movimentações de inventário</p>
+        <div class="header-titles">
+          <div class="welcome-tag">SISTEMA INTELIGENTE DE CONTROLE & EXPEDIÇÃO</div>
+          <h1 class="page-title">Painel Operacional & Gêmeo 3D</h1>
+          <p class="page-desc">Telemetria em tempo real, auditoria criptográfica Web3 e visualização tridimensional</p>
         </div>
         <div class="header-actions">
+          <button class="btn btn-web3" (click)="handleWeb3Audit()">
+            <span class="web3-pulse-dot"></span>
+            <span class="font-mono">{{ web3Service.isConnected() ? 'Auditar Registro Web3' : 'Conectar Ledger Web3' }}</span>
+          </button>
+
           <button class="btn btn-glass" (click)="refreshData()" title="Atualizar dados">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M23 4v6h-6"></path>
@@ -27,6 +34,7 @@ import { Product } from '../../models/inventory.models';
             </svg>
             <span>Atualizar</span>
           </button>
+
           <a routerLink="/produtos" [queryParams]="{ modal: 'new' }" class="btn btn-cream">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -37,17 +45,18 @@ import { Product } from '../../models/inventory.models';
         </div>
       </div>
 
-      <!-- Clean KPI Metrics Grid -->
       <div class="metrics-grid">
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
             <span class="metric-label">Valor em Estoque</span>
-            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
+            <div class="metric-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
           </div>
-          <div class="metric-value">
+          <div class="metric-value currency-cream">
             {{ summary()?.total_inventory_cost | currency:'BRL':'symbol':'1.2-2' }}
           </div>
           <div class="metric-sub">
@@ -58,9 +67,11 @@ import { Product } from '../../models/inventory.models';
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
             <span class="metric-label">Unidades Físicas</span>
-            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            </svg>
+            <div class="metric-icon-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              </svg>
+            </div>
           </div>
           <div class="metric-value">
             {{ summary()?.total_stock_units | number }} <span class="metric-unit">unidades</span>
@@ -73,13 +84,15 @@ import { Product } from '../../models/inventory.models';
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
             <span class="metric-label">Itens em Alerta</span>
-            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
+            <div class="metric-icon-box text-rose">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
           </div>
-          <div class="metric-value">
+          <div class="metric-value text-rose">
             {{ (summary()?.out_of_stock_count || 0) + (summary()?.low_stock_count || 0) }}
           </div>
           <div class="metric-sub">
@@ -89,29 +102,34 @@ import { Product } from '../../models/inventory.models';
 
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
-            <span class="metric-label">Fluxo Mensal</span>
-            <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-              <polyline points="17 6 23 6 23 12"></polyline>
-            </svg>
+            <span class="metric-label">Auditoria Web3</span>
+            <div class="metric-icon-box text-cyan">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+              </svg>
+            </div>
           </div>
-          <div class="metric-value">
-            +{{ summary()?.month_in_units }} / -{{ summary()?.month_out_units }}
+          <div class="metric-value font-mono text-cyan">
+            {{ web3Service.verifiedProofCount() }} Provas
           </div>
-          <div class="metric-sub">
-            {{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) >= 0 ? '+' : '' }}{{ (summary()?.month_in_units || 0) - (summary()?.month_out_units || 0) }} un saldo líquido
+          <div class="metric-sub font-mono">
+            {{ web3Service.isConnected() ? web3Service.networkName() : 'Imutabilidade Criptográfica' }}
           </div>
         </div>
       </div>
 
-      <!-- Main Layout Columns -->
+      <div class="warehouse-3d-section">
+        <app-warehouse-3d></app-warehouse-3d>
+      </div>
+
       <div class="dashboard-grid">
-        <!-- Left: Categories Distribution & Quick Restock -->
         <div class="dashboard-col">
-          <!-- Categories Distribution Card -->
           <div class="liquid-glass-card section-card">
             <div class="section-card-header">
-              <h2 class="section-title">Categorias</h2>
+              <div class="section-title-box">
+                <h2 class="section-title">Distribuição por Categorias</h2>
+                <span class="badge badge-category">{{ inventoryService.categories().length }} Setores</span>
+              </div>
               <a routerLink="/categorias" class="btn-link-cream">
                 <span>Ver todas</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -144,10 +162,9 @@ import { Product } from '../../models/inventory.models';
             </div>
           </div>
 
-          <!-- Quick Stock Movement Trigger Card -->
           <div class="liquid-glass-card section-card quick-action-card">
             <div class="section-card-header">
-              <h2 class="section-title">Operações Rápidas</h2>
+              <h2 class="section-title">Operações Rápidas de Fluxo</h2>
             </div>
 
             <div class="quick-buttons-row">
@@ -180,13 +197,17 @@ import { Product } from '../../models/inventory.models';
           </div>
         </div>
 
-        <!-- Right: Recent Activity Audit Table -->
         <div class="dashboard-col">
           <div class="liquid-glass-card section-card">
             <div class="section-card-header">
-              <h2 class="section-title">Movimentações Recentes</h2>
+              <div class="section-title-box">
+                <h2 class="section-title">Movimentações & Auditoria Criptográfica</h2>
+                <span class="crypto-hash-tag" *ngIf="web3Service.lastProof()">
+                  <span>TX: {{ web3Service.lastProof()?.txHash?.slice(0, 10) }}...</span>
+                </span>
+              </div>
               <a routerLink="/movimentacoes" class="btn-link-cream">
-                <span>Histórico</span>
+                <span>Livro-Razão</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -246,12 +267,11 @@ import { Product } from '../../models/inventory.models';
         </div>
       </div>
 
-      <!-- Quick Movement Modal -->
       <div *ngIf="showQuickModal()" class="modal-backdrop" (click)="closeQuickModal()">
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3 class="modal-title">
-              {{ quickModalType() === 'IN' ? 'Registrar Entrada de Estoque' : 'Registrar Saida de Estoque' }}
+              {{ quickModalType() === 'IN' ? 'Registrar Entrada de Estoque' : 'Registrar Saída de Estoque' }}
             </h3>
             <button class="modal-close-btn" (click)="closeQuickModal()" aria-label="Fechar modal">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -299,14 +319,14 @@ import { Product } from '../../models/inventory.models';
             </div>
 
             <div class="form-group">
-              <label class="form-label">Motivo da Movimentacao *</label>
+              <label class="form-label">Motivo da Movimentação *</label>
               <input 
                 type="text" 
                 [(ngModel)]="quickReason" 
                 name="reason" 
                 required 
                 class="glass-input" 
-                placeholder="Ex: Reposicao de fornecedor / Pedido de cliente"
+                placeholder="Ex: Reposição de fornecedor / Pedido de cliente"
               />
             </div>
 
@@ -317,7 +337,7 @@ import { Product } from '../../models/inventory.models';
                 class="btn"
                 [ngClass]="quickModalType() === 'IN' ? 'btn-success' : 'btn-danger'"
               >
-                Confirmar {{ quickModalType() === 'IN' ? 'Entrada' : 'Saida' }}
+                Confirmar {{ quickModalType() === 'IN' ? 'Entrada' : 'Saída' }}
               </button>
             </div>
           </form>
@@ -335,45 +355,43 @@ import { Product } from '../../models/inventory.models';
       gap: 28px;
     }
 
-    /* Page Header */
     .page-header {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
       gap: 20px;
       flex-wrap: wrap;
     }
-    .header-titles {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .welcome-tag {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--cream-400);
+      margin-bottom: 4px;
     }
     .page-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--cream-50);
-      letter-spacing: -0.02em;
-      margin: 0;
+      font-size: 2.2rem;
+      line-height: 1.15;
     }
     .page-desc {
-      font-size: 0.88rem;
-      color: var(--cream-400);
-      margin: 0;
+      font-size: 0.94rem;
+      color: var(--cream-300);
+      margin-top: 6px;
     }
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    /* KPI Metrics Grid */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      gap: 18px;
     }
     .metric-card {
-      padding: 18px 20px;
+      padding: 22px 24px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -385,74 +403,92 @@ import { Product } from '../../models/inventory.models';
     }
     .metric-label {
       font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      letter-spacing: 0.02em;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--cream-300);
+      text-transform: uppercase;
     }
-    .metric-icon {
-      color: var(--text-muted);
+    .metric-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cream-400);
     }
     .metric-value {
-      font-family: var(--font-heading);
-      font-size: 1.65rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      letter-spacing: -0.02em;
+      font-size: 2.0rem;
+      font-weight: 800;
+      font-family: var(--font-display);
+      line-height: 1.1;
+      color: var(--cream-50);
     }
     .metric-unit {
-      font-size: 0.85rem;
-      font-weight: 400;
-      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--cream-400);
     }
     .metric-sub {
       font-size: 0.78rem;
-      color: var(--text-muted);
+      color: var(--cream-400);
     }
 
-    /* Main Grid */
+    .warehouse-3d-section {
+      width: 100%;
+    }
+
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 1fr 1.35fr;
-      gap: 24px;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
     }
     .dashboard-col {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 22px;
     }
+
     .section-card {
-      padding: 24px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
     }
     .section-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+    }
+    .section-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .section-title {
       font-size: 1.15rem;
       color: var(--cream-50);
-    }
-    .section-subtitle {
-      font-size: 0.78rem;
-      color: var(--cream-400);
+      margin: 0;
     }
     .btn-link-cream {
-      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--royal-300);
       text-decoration: none;
+      transition: color var(--transition-fast);
     }
     .btn-link-cream:hover {
       color: var(--cream-100);
-      text-decoration: underline;
     }
 
-    /* Category Progress Bars */
     .category-bars {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
     .cat-bar-item {
       display: flex;
@@ -463,7 +499,7 @@ import { Product } from '../../models/inventory.models';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
     .cat-name-box {
       display: flex;
@@ -471,8 +507,8 @@ import { Product } from '../../models/inventory.models';
       gap: 8px;
     }
     .cat-color-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
     }
     .cat-name {
@@ -486,104 +522,82 @@ import { Product } from '../../models/inventory.models';
     }
     .cat-units {
       font-weight: 700;
-      color: var(--cream-200);
-      font-family: var(--font-mono);
+      color: var(--cream-50);
     }
     .cat-items {
+      color: var(--cream-muted);
       font-size: 0.75rem;
-      color: var(--cream-400);
     }
     .cat-progress-bg {
-      height: 7px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
+      width: 100%;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.06);
       overflow: hidden;
     }
     .cat-progress-fill {
       height: 100%;
-      border-radius: 999px;
-      transition: width 0.5s ease;
+      border-radius: var(--radius-pill);
+      transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Quick Actions */
     .quick-buttons-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 14px;
     }
     .quick-btn {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border-subtle);
-      background: var(--bg-input);
-      color: var(--text-primary);
+      padding: 14px;
+      border-radius: var(--radius-md);
       cursor: pointer;
+      border: 1px solid transparent;
       text-align: left;
-      transition: background var(--transition-fast), border-color var(--transition-fast);
+      transition: all var(--transition-fast);
     }
-    .quick-btn:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(255, 255, 255, 0.15);
+    .quick-btn.in-btn {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+    .quick-btn.in-btn:hover {
+      background: rgba(16, 185, 129, 0.16);
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+    .quick-btn.out-btn {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+    .quick-btn.out-btn:hover {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.45);
     }
     .quick-btn-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-secondary);
       background: rgba(255, 255, 255, 0.05);
     }
-    .in-btn .quick-btn-icon {
-      color: var(--status-success-text);
-      background: var(--status-success-bg);
-    }
-    .out-btn .quick-btn-icon {
-      color: var(--status-danger-text);
-      background: var(--status-danger-bg);
+    .quick-btn.in-btn .quick-btn-icon { color: #34d399; }
+    .quick-btn.out-btn .quick-btn-icon { color: #f87171; }
+    .quick-btn-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
     .quick-btn-text strong {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-primary);
+      font-size: 0.86rem;
+      color: var(--cream-50);
     }
     .quick-btn-text span {
       font-size: 0.74rem;
-      color: var(--text-muted);
+      color: var(--cream-muted);
     }
 
-    /* Table */
-    .table-responsive {
-      overflow-x: auto;
-    }
-    .glass-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.86rem;
-    }
-    .glass-table th {
-      text-align: left;
-      padding: 12px 14px;
-      font-size: 0.74rem;
-      font-weight: 700;
-      color: var(--cream-400);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      color: var(--cream-100);
-    }
-    .glass-table tr:hover td {
-      background: rgba(255, 255, 255, 0.03);
-    }
     .prod-cell {
       display: flex;
       flex-direction: column;
@@ -591,49 +605,7 @@ import { Product } from '../../models/inventory.models';
     }
     .prod-title {
       font-weight: 600;
-      color: var(--cream-100);
-    }
-    .doc-tag {
-      font-size: 0.76rem;
-      color: var(--cream-300);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    .font-mono { font-family: var(--font-mono); }
-    .font-bold { font-weight: 700; }
-    .text-xs { font-size: 0.76rem; }
-    .text-cream-muted { color: var(--cream-400); }
-
-    /* Modal Form */
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .modal-title {
-      font-size: 1.25rem;
       color: var(--cream-50);
-    }
-    .modal-close-btn {
-      background: none;
-      border: none;
-      color: var(--cream-400);
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    .modal-close-btn:hover { color: #fff; }
-    .form-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 24px;
     }
 
     @media (max-width: 1100px) {
@@ -660,6 +632,7 @@ import { Product } from '../../models/inventory.models';
 export class DashboardComponent {
   inventoryService = inject(InventoryService);
   toast = inject(ToastService);
+  web3Service = inject(Web3Service);
 
   showQuickModal = signal<boolean>(false);
   quickModalType = signal<'IN' | 'OUT'>('IN');
@@ -672,18 +645,33 @@ export class DashboardComponent {
     return this.inventoryService.dashboardData()?.summary;
   }
 
-  getCategoryPercentage(units: number) {
+  getCategoryPercentage(units: number): number {
     const total = this.summary()?.total_stock_units || 1;
     return Math.min(100, Math.round((units / total) * 100));
   }
 
-  refreshData() {
+  refreshData(): void {
     this.inventoryService.loadDashboard().subscribe(() => {
       this.toast.success('Métricas atualizadas com sucesso');
     });
   }
 
-  openQuickModal(type: 'IN' | 'OUT') {
+  async handleWeb3Audit(): Promise<void> {
+    if (!this.web3Service.isConnected()) {
+      try {
+        const addr = await this.web3Service.connectWallet();
+        this.toast.success(`Carteira Web3 conectada: ${this.web3Service.getShortAddress(addr)}`);
+      } catch (err: any) {
+        this.toast.error(err.message || 'Erro ao conectar carteira Web3');
+        return;
+      }
+    }
+
+    const proof = await this.web3Service.generateLedgerProof(this.summary());
+    this.toast.success(`Prova Criptográfica emitida com sucesso! TX: ${proof.txHash.slice(0, 16)}...`);
+  }
+
+  openQuickModal(type: 'IN' | 'OUT'): void {
     this.quickModalType.set(type);
     this.quickProductId = this.inventoryService.products()[0]?.id || null;
     this.quickQuantity = 1;
@@ -692,11 +680,11 @@ export class DashboardComponent {
     this.showQuickModal.set(true);
   }
 
-  closeQuickModal() {
+  closeQuickModal(): void {
     this.showQuickModal.set(false);
   }
 
-  submitQuickMovement() {
+  submitQuickMovement(): void {
     if (!this.quickProductId) {
       this.toast.error('Selecione um produto.');
       return;
