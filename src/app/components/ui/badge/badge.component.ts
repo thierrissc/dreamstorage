@@ -1,8 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 export type BadgeVariant = 'normal' | 'low' | 'out' | 'category' | 'cream' | 'neutral';
-
 @Component({
   selector: 'ui-badge',
   standalone: true,

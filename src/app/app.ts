@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
-
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -21,4 +20,3 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
 export class App {
   title = 'DreamStorage';
 }
-

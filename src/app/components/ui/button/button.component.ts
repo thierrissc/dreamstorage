@@ -1,9 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 export type ButtonVariant = 'royal' | 'cream' | 'glass' | 'outline' | 'ghost' | 'danger' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
-
 @Component({
   selector: 'ui-button',
   standalone: true,
@@ -48,7 +46,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       cursor: not-allowed;
       pointer-events: none;
     }
-
     /* Sizes */
     .ui-btn-sm {
       padding: 6px 12px;
@@ -71,7 +68,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       padding: 0;
       border-radius: 10px;
     }
-
     /* Variants */
     .ui-btn-royal {
       background: linear-gradient(135deg, var(--royal-500) 0%, var(--royal-700) 100%);
@@ -84,7 +80,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       box-shadow: 0 6px 20px rgba(48, 98, 234, 0.5);
       transform: translateY(-1px);
     }
-
     .ui-btn-cream {
       background: linear-gradient(135deg, var(--cream-100) 0%, var(--cream-300) 100%);
       color: var(--royal-950);
@@ -96,7 +91,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       box-shadow: 0 6px 20px rgba(222, 205, 169, 0.42);
       transform: translateY(-1px);
     }
-
     .ui-btn-glass {
       background: rgba(16, 33, 84, 0.55);
       backdrop-filter: blur(14px);
@@ -110,7 +104,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       border-color: var(--glass-border-bright);
       transform: translateY(-1px);
     }
-
     .ui-btn-danger {
       background: linear-gradient(135deg, var(--rose-500) 0%, #be123c 100%);
       color: white;
@@ -122,7 +115,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       box-shadow: 0 6px 18px rgba(244, 63, 94, 0.45);
       transform: translateY(-1px);
     }
-
     .ui-btn-success {
       background: linear-gradient(135deg, var(--emerald-500) 0%, #047857 100%);
       color: white;
@@ -134,7 +126,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
       transform: translateY(-1px);
     }
-
     .ui-btn-outline {
       background: transparent;
       color: var(--cream-200);
@@ -145,7 +136,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       color: var(--cream-50);
       border-color: var(--glass-border-bright);
     }
-
     .ui-btn-ghost {
       background: transparent;
       color: var(--cream-300);
@@ -155,7 +145,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       background: rgba(255, 255, 255, 0.05);
       color: var(--cream-50);
     }
-
     .spinner {
       width: 14px;
       height: 14px;

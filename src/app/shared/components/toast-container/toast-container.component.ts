@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService } from '../../../core/services/toast.service';
-
 @Component({
   selector: 'app-toast-container',
   standalone: true,
@@ -83,7 +82,6 @@ import { ToastService } from '../../../core/services/toast.service';
     .toast-error { border-left: 4px solid #f43f5e; }
     .toast-warning { border-left: 4px solid #f59e0b; }
     .toast-info { border-left: 4px solid #38bdf8; }
-
     .toast-icon {
       flex-shrink: 0;
       display: flex;

@@ -5,7 +5,6 @@ import { MovementListComponent } from './features/movements/movement-list.compon
 import { CategorySupplierComponent } from './features/categories/category-supplier.component';
 import { DeliveryListComponent } from './features/deliveries/delivery-list.component';
 import { ProfileComponent } from './features/profile/profile.component';
-
 export const routes: Routes = [
   { path: '', component: DashboardComponent, title: 'DreamStorage | Painel de Controle' },
   { path: 'produtos', component: ProductListComponent, title: 'DreamStorage | Catalogo de Produtos' },
@@ -15,5 +14,3 @@ export const routes: Routes = [
   { path: 'perfil', component: ProfileComponent, title: 'DreamStorage | Perfil & Controle' },
   { path: '**', redirectTo: '' }
 ];
-
-

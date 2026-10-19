@@ -12,14 +12,11 @@ import {
   DeliveryOrder,
   DeliveryStatus
 } from '../../models/inventory.models';
-
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryService {
   private baseUrl = 'http://localhost:8000/api/inventory';
-
-  // Signals para reatividade instantânea em toda a interface
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   suppliers = signal<Supplier[]>([]);
@@ -28,8 +25,6 @@ export class InventoryService {
   deliveries = signal<DeliveryOrder[]>([]);
   dashboardData = signal<DashboardOverview | null>(null);
   isLoading = signal<boolean>(false);
-
-  // Dados mockados de alta fidelidade para fallback
   private mockCategories: Category[] = [
     { id: 1, name: 'Servidores & Datacenter', slug: 'servidores-datacenter', description: 'Servidores rack e fontes redundantes', color: '#1d4ed8', icon: 'server', products_count: 2 },
     { id: 2, name: 'Redes & Infraestrutura', slug: 'redes-infraestrutura', description: 'Switches gerenciáveis e roteadores', color: '#2563eb', icon: 'wifi', products_count: 3 },
@@ -37,14 +32,12 @@ export class InventoryService {
     { id: 4, name: 'Periféricos & Estações', slug: 'perifericos-estacoes', description: 'Monitores calibrados e teclados', color: '#60a5fa', icon: 'monitor', products_count: 2 },
     { id: 5, name: 'Cabos & Conectividade', slug: 'cabos-conectividade', description: 'Cabos ópticos OM4 e transceivers SFP+', color: '#93c5fd', icon: 'link', products_count: 2 },
   ];
-
   private mockSuppliers: Supplier[] = [
     { id: 1, name: 'Synapse Tech Soluções Globais', cnpj_cpf: '12.345.678/0001-90', contact_person: 'Ricardo Alcantara', email: 'contato@synapsetech.com.br', phone: '(11) 3456-7890', address: 'Av. Brigadeiro Faria Lima, 2000 - SP', products_count: 2 },
     { id: 2, name: 'Quantum Hardware Distribuidora', cnpj_cpf: '98.765.432/0001-11', contact_person: 'Mariana Esteves', email: 'vendas@quantumhardware.com.br', phone: '(19) 3211-9988', address: 'Rodovia Dom Pedro I, Campinas - SP', products_count: 2 },
     { id: 3, name: 'Nexus Fibra & Redes do Brasil', cnpj_cpf: '45.123.789/0001-55', contact_person: 'Carlos Eduardo Duarte', email: 'pedidos@nexusfibra.com', phone: '(21) 2555-1234', address: 'Rua Primeiro de Março, 80 - RJ', products_count: 5 },
     { id: 4, name: 'Apex Microchips & Armazenamento', cnpj_cpf: '77.888.999/0001-33', contact_person: 'Beatriz Ramos', email: 'comercial@apexstorage.com', phone: '(41) 3044-8800', address: 'Rua Marechal Deodoro, Curitiba - PR', products_count: 2 },
   ];
-
   private mockProducts: Product[] = [
     {
       id: 1,
@@ -311,7 +304,6 @@ export class InventoryService {
       description: 'Compatibilidade universal com switches Cisco, Dell, Juniper, Arista e MikroTik.'
     }
   ];
-
   private mockMovements: StockMovement[] = [
     {
       id: 1,
@@ -428,7 +420,6 @@ export class InventoryService {
       created_at: new Date(Date.now() - 3600000 * 1).toISOString()
     }
   ];
-
   private mockAlerts: StockAlert[] = [
     {
       id: 1,
@@ -467,19 +458,15 @@ export class InventoryService {
       created_at: new Date(Date.now() - 3600000 * 12).toISOString()
     }
   ];
-
   constructor(private http: HttpClient) {
-    // Inicializa os sinais com os dados locais
     this.categories.set(this.mockCategories);
     this.suppliers.set(this.mockSuppliers);
     this.products.set(this.mockProducts);
     this.movements.set(this.mockMovements);
     this.alerts.set(this.mockAlerts);
     this.recalculateDashboard();
-    // Tenta carregar do backend Django
     this.loadFromBackend();
   }
-
   loadFromBackend() {
     this.loadCategories().subscribe();
     this.loadSuppliers().subscribe();
@@ -487,8 +474,6 @@ export class InventoryService {
     this.loadDashboard().subscribe();
     this.loadMovements().subscribe();
   }
-
-  // --- DASHBOARD ---
   loadDashboard(): Observable<DashboardOverview> {
     return this.http.get<DashboardOverview>(`${this.baseUrl}/dashboard/`).pipe(
       tap(data => {
@@ -500,7 +485,6 @@ export class InventoryService {
       })
     );
   }
-
   recalculateDashboard() {
     const prods = this.products();
     const total_products = prods.length;
@@ -510,12 +494,10 @@ export class InventoryService {
     let out_of_stock_count = 0;
     let low_stock_count = 0;
     let healthy_stock_count = 0;
-
     prods.forEach(p => {
       total_stock_units += p.quantity;
       total_inventory_cost += Number(p.cost_price) * p.quantity;
       total_inventory_selling += Number(p.selling_price) * p.quantity;
-
       if (p.quantity <= 0) {
         out_of_stock_count++;
       } else if (p.quantity <= p.min_stock) {
@@ -524,7 +506,6 @@ export class InventoryService {
         healthy_stock_count++;
       }
     });
-
     const categories_distribution = this.categories().map(cat => {
       const items = prods.filter(p => p.category === cat.id);
       const units = items.reduce((acc, curr) => acc + curr.quantity, 0);
@@ -536,12 +517,10 @@ export class InventoryService {
         total_units: units
       };
     });
-
     const critical_products = prods
       .filter(p => p.quantity <= p.min_stock)
       .sort((a, b) => a.quantity - b.quantity)
       .slice(0, 6);
-
     const overview: DashboardOverview = {
       summary: {
         total_products,
@@ -561,11 +540,8 @@ export class InventoryService {
       critical_products,
       categories_distribution
     };
-
     this.dashboardData.set(overview);
   }
-
-  // --- PRODUTOS ---
   loadProducts(filters?: any): Observable<Product[]> {
     this.isLoading.set(true);
     let params = new HttpParams();
@@ -576,7 +552,6 @@ export class InventoryService {
         }
       });
     }
-
     return this.http.get<any>(`${this.baseUrl}/products/`, { params }).pipe(
       map(res => Array.isArray(res) ? res : res.results || []),
       tap(prods => {
@@ -605,7 +580,6 @@ export class InventoryService {
       })
     );
   }
-
   createProduct(data: Partial<Product>): Observable<Product> {
     return this.http.post<Product>(`${this.baseUrl}/products/`, data).pipe(
       tap(newProd => {
@@ -613,14 +587,12 @@ export class InventoryService {
         this.recalculateDashboard();
       }),
       catchError(() => {
-        // Fallback local
         const categoryObj = this.categories().find(c => c.id === Number(data.category));
         const supplierObj = this.suppliers().find(s => s.id === Number(data.supplier));
         const qty = Number(data.quantity) || 0;
         const cost = Number(data.cost_price) || 0;
         const selling = Number(data.selling_price) || 0;
         const minStock = Number(data.min_stock) || 5;
-
         const newProd: Product = {
           id: Date.now(),
           sku: data.sku?.toUpperCase() || `SKU-${Math.floor(Math.random() * 10000)}`,
@@ -646,7 +618,6 @@ export class InventoryService {
           margin_percentage: cost > 0 ? ((selling - cost) / cost) * 100 : 0,
           created_at: new Date().toISOString()
         };
-
         this.mockProducts.unshift(newProd);
         this.products.update(curr => [newProd, ...curr]);
         this.recalculateDashboard();
@@ -654,7 +625,6 @@ export class InventoryService {
       })
     );
   }
-
   updateProduct(id: number, data: Partial<Product>): Observable<Product> {
     return this.http.put<Product>(`${this.baseUrl}/products/${id}/`, data).pipe(
       tap(updated => {
@@ -664,14 +634,12 @@ export class InventoryService {
       catchError(() => {
         const categoryObj = this.categories().find(c => c.id === Number(data.category));
         const supplierObj = this.suppliers().find(s => s.id === Number(data.supplier));
-
         this.products.update(curr => curr.map(p => {
           if (p.id === id) {
             const qty = data.quantity !== undefined ? Number(data.quantity) : p.quantity;
             const cost = data.cost_price !== undefined ? Number(data.cost_price) : Number(p.cost_price);
             const selling = data.selling_price !== undefined ? Number(data.selling_price) : Number(p.selling_price);
             const minStock = data.min_stock !== undefined ? Number(data.min_stock) : p.min_stock;
-
             const updatedProd: Product = {
               ...p,
               ...data,
@@ -693,7 +661,6 @@ export class InventoryService {
       })
     );
   }
-
   deleteProduct(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/products/${id}/`).pipe(
       tap(() => {
@@ -707,8 +674,6 @@ export class InventoryService {
       })
     );
   }
-
-  // --- ARQUIVAMENTO DE PRODUTOS ---
   archiveProduct(id: number, reason: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/products/${id}/archive/`, { reason }).pipe(
       tap(res => {
@@ -726,7 +691,6 @@ export class InventoryService {
       })
     );
   }
-
   unarchiveProduct(id: number): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/products/${id}/unarchive/`, {}).pipe(
       tap(res => {
@@ -744,8 +708,6 @@ export class InventoryService {
       })
     );
   }
-
-  // --- ENTREGAS & DESPACHO LOGÍSTICO ---
   loadDeliveries(): Observable<DeliveryOrder[]> {
     return this.http.get<any>(`${this.baseUrl}/deliveries/`).pipe(
       map(res => Array.isArray(res) ? res : res.results || []),
@@ -757,7 +719,6 @@ export class InventoryService {
       })
     );
   }
-
   dispatchDelivery(productId: number, payload: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/products/${productId}/dispatch-delivery/`, payload).pipe(
       tap(res => {
@@ -770,12 +731,10 @@ export class InventoryService {
         this.recalculateDashboard();
       }),
       catchError(() => {
-        // Fallback local
         const prod = this.products().find(p => p.id === productId);
         if (!prod) return throwError(() => new Error('Produto não encontrado'));
         const qty = Number(payload.quantity) || 1;
         if (prod.quantity < qty) return throwError(() => new Error('Estoque insuficiente para despacho'));
-
         const code = `BR${Date.now().toString().slice(-8)}BR`;
         const newDelivery: DeliveryOrder = {
           id: Date.now(),
@@ -793,7 +752,6 @@ export class InventoryService {
           shipping_cost: payload.shipping_cost || 0,
           created_at: new Date().toISOString()
         };
-
         this.deliveries.update(curr => [newDelivery, ...curr]);
         this.products.update(curr => curr.map(p => p.id === productId ? { ...p, quantity: p.quantity - qty } : p));
         this.recalculateDashboard();
@@ -801,7 +759,6 @@ export class InventoryService {
       })
     );
   }
-
   updateDeliveryStatus(id: number, status: DeliveryStatus): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/deliveries/${id}/update_status/`, { status }).pipe(
       tap(res => {
@@ -814,8 +771,6 @@ export class InventoryService {
       })
     );
   }
-
-  // --- MOVIMENTAÇÃO RÁPIDA ---
   quickMovement(productId: number, payload: { movement_type: 'IN' | 'OUT'; quantity: number; reason: string; reference_doc?: string }): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/products/${productId}/quick-movement/`, payload).pipe(
       tap(res => {
@@ -828,18 +783,14 @@ export class InventoryService {
         this.recalculateDashboard();
       }),
       catchError(() => {
-        // Simulação local
         const prod = this.products().find(p => p.id === productId);
         if (!prod) return throwError(() => new Error('Produto não encontrado'));
-
         if (payload.movement_type === 'OUT' && prod.quantity < payload.quantity) {
           return throwError(() => new Error(`Estoque insuficiente! Saldo atual é de ${prod.quantity} unidades.`));
         }
-
         const prev = prod.quantity;
         const next = payload.movement_type === 'IN' ? prev + payload.quantity : prev - payload.quantity;
         const unitCost = Number(prod.cost_price);
-
         const newMovement: StockMovement = {
           id: Date.now(),
           product: prod.id,
@@ -858,11 +809,9 @@ export class InventoryService {
           performed_by: 'Administrador',
           created_at: new Date().toISOString()
         };
-
         this.updateProduct(productId, { quantity: next }).subscribe();
         this.movements.update(curr => [newMovement, ...curr]);
         this.recalculateDashboard();
-
         return of({
           message: 'Movimentação rápida registrada!',
           product: { ...prod, quantity: next },
@@ -871,8 +820,6 @@ export class InventoryService {
       })
     );
   }
-
-  // --- MOVIMENTAÇÕES COMPLETAS ---
   loadMovements(filters?: any): Observable<StockMovement[]> {
     let params = new HttpParams();
     if (filters) {
@@ -880,14 +827,12 @@ export class InventoryService {
         if (filters[key]) params = params.set(key, filters[key]);
       });
     }
-
     return this.http.get<any>(`${this.baseUrl}/movements/`, { params }).pipe(
       map(res => Array.isArray(res) ? res : res.results || []),
       tap(list => this.movements.set(list)),
       catchError(() => of(this.movements()))
     );
   }
-
   createMovement(data: any): Observable<StockMovement> {
     return this.http.post<StockMovement>(`${this.baseUrl}/movements/`, data).pipe(
       tap(newM => {
@@ -898,15 +843,12 @@ export class InventoryService {
       catchError(() => {
         const prod = this.products().find(p => p.id === Number(data.product));
         if (!prod) return throwError(() => new Error('Produto inexistente'));
-
         const prev = prod.quantity;
         let next = prev;
         const qty = Number(data.quantity);
-
         if (data.movement_type === 'IN') next = prev + qty;
         else if (data.movement_type === 'OUT') next = prev - qty;
         else if (data.movement_type === 'ADJUST') next = qty;
-
         const newM: StockMovement = {
           id: Date.now(),
           product: prod.id,
@@ -926,7 +868,6 @@ export class InventoryService {
           notes: data.notes || '',
           created_at: new Date().toISOString()
         };
-
         this.updateProduct(prod.id, { quantity: next }).subscribe();
         this.movements.update(curr => [newM, ...curr]);
         this.recalculateDashboard();
@@ -934,8 +875,6 @@ export class InventoryService {
       })
     );
   }
-
-  // --- CATEGORIAS & FORNECEDORES ---
   loadCategories(): Observable<Category[]> {
     return this.http.get<any>(`${this.baseUrl}/categories/`).pipe(
       map(res => Array.isArray(res) ? res : res.results || []),
@@ -943,7 +882,6 @@ export class InventoryService {
       catchError(() => of(this.categories()))
     );
   }
-
   createCategory(data: Partial<Category>): Observable<Category> {
     return this.http.post<Category>(`${this.baseUrl}/categories/`, data).pipe(
       tap(newC => this.categories.update(curr => [...curr, newC])),
@@ -962,7 +900,6 @@ export class InventoryService {
       })
     );
   }
-
   loadSuppliers(): Observable<Supplier[]> {
     return this.http.get<any>(`${this.baseUrl}/suppliers/`).pipe(
       map(res => Array.isArray(res) ? res : res.results || []),
@@ -970,7 +907,6 @@ export class InventoryService {
       catchError(() => of(this.suppliers()))
     );
   }
-
   createSupplier(data: Partial<Supplier>): Observable<Supplier> {
     return this.http.post<Supplier>(`${this.baseUrl}/suppliers/`, data).pipe(
       tap(newS => this.suppliers.update(curr => [...curr, newS])),
@@ -990,8 +926,6 @@ export class InventoryService {
       })
     );
   }
-
-  // --- ALERTAS ---
   loadAlerts(): Observable<StockAlert[]> {
     return this.http.get<any>(`${this.baseUrl}/alerts/`).pipe(
       map(res => Array.isArray(res) ? res : res.results || []),
@@ -999,7 +933,6 @@ export class InventoryService {
       catchError(() => of(this.alerts()))
     );
   }
-
   markAlertRead(id: number): Observable<any> {
     return this.http.post(`${this.baseUrl}/alerts/${id}/mark_read/`, {}).pipe(
       tap(() => {

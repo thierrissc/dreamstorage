@@ -8,7 +8,6 @@ export interface Category {
   products_count?: number;
   created_at?: string;
 }
-
 export interface Supplier {
   id: number;
   name: string;
@@ -21,10 +20,8 @@ export interface Supplier {
   products_count?: number;
   created_at?: string;
 }
-
 export type StockStatus = 'NORMAL' | 'LOW_STOCK' | 'OUT_OF_STOCK';
 export type UnitMeasure = 'UN' | 'CX' | 'PC' | 'KG' | 'MT' | 'LT' | 'PAR' | 'KIT';
-
 export interface Product {
   id: number;
   sku: string;
@@ -54,10 +51,8 @@ export interface Product {
   created_at?: string;
   updated_at?: string;
 }
-
 export type DeliveryCarrier = 'CORREIOS' | 'LOGGI' | 'MELHOR_ENVIO' | 'JADLOG' | 'EXPRESS';
 export type DeliveryStatus = 'PREPARING' | 'DISPATCHED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
-
 export interface DeliveryOrder {
   id: number;
   product: number;
@@ -78,9 +73,7 @@ export interface DeliveryOrder {
   created_at: string;
   updated_at?: string;
 }
-
 export type MovementType = 'IN' | 'OUT' | 'ADJUST';
-
 export interface StockMovement {
   id: number;
   product: number;
@@ -100,7 +93,6 @@ export interface StockMovement {
   notes?: string;
   created_at: string;
 }
-
 export interface StockAlert {
   id: number;
   product: number;
@@ -113,7 +105,6 @@ export interface StockAlert {
   is_read: boolean;
   created_at: string;
 }
-
 export interface DashboardSummary {
   total_products: number;
   total_stock_units: number;
@@ -128,7 +119,6 @@ export interface DashboardSummary {
   month_in_units: number;
   month_out_units: number;
 }
-
 export interface CategoryDistribution {
   id: number;
   name: string;
@@ -136,14 +126,12 @@ export interface CategoryDistribution {
   items_count: number;
   total_units: number;
 }
-
 export interface DashboardOverview {
   summary: DashboardSummary;
   recent_movements: StockMovement[];
   critical_products: Product[];
   categories_distribution: CategoryDistribution[];
 }
-
 export interface User {
   id: number;
   username: string;
