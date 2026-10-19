@@ -4,23 +4,20 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { InventoryService } from '../../core/services/inventory.service';
-
+import { Web3Service } from '../../core/services/web3.service';
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
     <div class="profile-page">
-      <!-- Minimalist Header -->
       <div class="page-header">
         <div>
           <h1 class="page-title">Perfil & Controle de Acesso</h1>
           <p class="page-desc">Gerenciamento de credenciais, nivel de permissao e politicas de seguranca.</p>
         </div>
       </div>
-
       <div class="profile-grid">
-        <!-- User Info Card -->
         <div class="liquid-glass-card profile-card">
           <div class="profile-header">
             <div class="profile-avatar">
@@ -31,7 +28,6 @@ import { InventoryService } from '../../core/services/inventory.service';
               <span class="profile-role-tag">{{ currentRole }}</span>
             </div>
           </div>
-
           <form (ngSubmit)="saveProfile()" class="profile-form">
             <div class="form-grid-2">
               <div class="form-group">
@@ -43,7 +39,6 @@ import { InventoryService } from '../../core/services/inventory.service';
                   class="glass-input font-mono input-disabled"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">E-mail Corporativo</label>
                 <input 
@@ -54,7 +49,6 @@ import { InventoryService } from '../../core/services/inventory.service';
                 />
               </div>
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Primeiro Nome</label>
@@ -65,7 +59,6 @@ import { InventoryService } from '../../core/services/inventory.service';
                   class="glass-input" 
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Sobrenome</label>
                 <input 
@@ -76,7 +69,6 @@ import { InventoryService } from '../../core/services/inventory.service';
                 />
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Nivel de Acesso & Role (RLS)</label>
               <select [(ngModel)]="currentRole" name="role" class="glass-input">
@@ -86,20 +78,16 @@ import { InventoryService } from '../../core/services/inventory.service';
                 <option value="Auditor Fiscal">Auditor Fiscal (Somente Leitura e Relatorios)</option>
               </select>
             </div>
-
             <div class="card-footer-actions">
               <button type="submit" class="btn btn-cream">Salvar Alteracoes</button>
             </div>
           </form>
         </div>
-
-        <!-- Security & Access Control Panel -->
         <div class="liquid-glass-card security-card">
           <div class="security-card-header">
             <h2 class="card-title">Politicas de Seguranca & Sessao</h2>
             <span class="badge badge-normal">Sessao Criptografada</span>
           </div>
-
           <div class="security-items-list">
             <div class="sec-item">
               <div class="sec-info">
@@ -108,7 +96,6 @@ import { InventoryService } from '../../core/services/inventory.service';
               </div>
               <span class="status-pill status-active">Ativo</span>
             </div>
-
             <div class="sec-item">
               <div class="sec-info">
                 <div class="sec-title">Protecao contra Field Tampering</div>
@@ -116,7 +103,6 @@ import { InventoryService } from '../../core/services/inventory.service';
               </div>
               <span class="status-pill status-active">Ativo</span>
             </div>
-
             <div class="sec-item">
               <div class="sec-info">
                 <div class="sec-title">Auditoria Imutavel de Movimentacao</div>
@@ -124,7 +110,6 @@ import { InventoryService } from '../../core/services/inventory.service';
               </div>
               <span class="status-pill status-active">Auditavel</span>
             </div>
-
             <div class="sec-item">
               <div class="sec-info">
                 <div class="sec-title">Token de Integracao API</div>
@@ -134,8 +119,22 @@ import { InventoryService } from '../../core/services/inventory.service';
                 </div>
               </div>
             </div>
+            <div class="sec-item">
+              <div class="sec-info">
+                <div class="sec-title">Identidade & Assinatura Web3</div>
+                <div class="sec-desc">Carteira criptográfica para validação descentralizada do inventário.</div>
+                <div class="sec-token-box" style="margin-top: 6px;">
+                  <span class="font-mono text-xs token-masked">{{ web3Service.walletAddress() || 'Nenhuma carteira conectada' }}</span>
+                  <button type="button" class="btn-copy" (click)="toggleWeb3Wallet()">
+                    {{ web3Service.isConnected() ? 'Desconectar' : 'Conectar' }}
+                  </button>
+                </div>
+              </div>
+              <span class="status-pill" [ngClass]="web3Service.isConnected() ? 'status-active' : ''">
+                {{ web3Service.isConnected() ? 'Conectado' : 'Inativo' }}
+              </span>
+            </div>
           </div>
-
           <div class="danger-zone">
             <button class="btn btn-sm btn-danger" (click)="resetSession()">Encerrar Sessao Atual</button>
           </div>
@@ -164,14 +163,12 @@ import { InventoryService } from '../../core/services/inventory.service';
       color: var(--cream-300);
       margin-top: 4px;
     }
-
     .profile-grid {
       display: grid;
       grid-template-columns: 1.15fr 1fr;
       gap: 24px;
     }
-
-    /* Profile Card */
+    
     .profile-card {
       padding: 28px;
       display: flex;
@@ -207,7 +204,6 @@ import { InventoryService } from '../../core/services/inventory.service';
       color: var(--cream-400);
       font-weight: 600;
     }
-
     .profile-form {
       display: flex;
       flex-direction: column;
@@ -228,8 +224,7 @@ import { InventoryService } from '../../core/services/inventory.service';
       padding-top: 12px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
-
-    /* Security Card */
+    
     .security-card {
       padding: 28px;
       display: flex;
@@ -316,7 +311,6 @@ import { InventoryService } from '../../core/services/inventory.service';
       display: flex;
       justify-content: flex-end;
     }
-
     @media (max-width: 900px) {
       .profile-grid {
         grid-template-columns: 1fr;
@@ -330,6 +324,7 @@ import { InventoryService } from '../../core/services/inventory.service';
 export class ProfileComponent {
   authService = inject(AuthService);
   toast = inject(ToastService);
+  web3Service = inject(Web3Service);
 
   user = this.authService.currentUser;
   firstName = this.user().first_name || 'Gestor';
@@ -351,6 +346,20 @@ export class ProfileComponent {
   copyToken() {
     navigator.clipboard?.writeText('ds_live_98319f012bcf3e284917a9');
     this.toast.info('Token de integracao copiado para a area de transferencia.');
+  }
+
+  async toggleWeb3Wallet(): Promise<void> {
+    if (this.web3Service.isConnected()) {
+      this.web3Service.disconnect();
+      this.toast.info('Carteira Web3 desconectada.');
+      return;
+    }
+    try {
+      const addr = await this.web3Service.connectWallet();
+      this.toast.success(`Carteira conectada: ${this.web3Service.getShortAddress(addr)}`);
+    } catch (err: any) {
+      this.toast.error(err.message || 'Erro ao conectar carteira Web3');
+    }
   }
 
   resetSession() {

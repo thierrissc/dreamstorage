@@ -5,14 +5,12 @@ import { RouterModule } from '@angular/router';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inventory.models';
-
 @Component({
   selector: 'app-delivery-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="deliveries-page">
-      <!-- Header -->
       <div class="page-header">
         <div>
           <div class="welcome-tag">LOGISTICA & EXPEDICAO INTEGRADA</div>
@@ -31,8 +29,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
           </a>
         </div>
       </div>
-
-      <!-- Metric Cards -->
       <div class="metrics-grid">
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
@@ -49,7 +45,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
           <div class="metric-val">{{ totalCount() }}</div>
           <div class="metric-sub">Ordens emitidas</div>
         </div>
-
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
             <span class="metric-label">Em Transito / Ativos</span>
@@ -63,7 +58,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
           <div class="metric-val text-cyan">{{ inTransitCount() }}</div>
           <div class="metric-sub">Cargas a caminho</div>
         </div>
-
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
             <span class="metric-label">Entregas Concluidas</span>
@@ -77,7 +71,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
           <div class="metric-val text-emerald">{{ deliveredCount() }}</div>
           <div class="metric-sub">Finalizadas com sucesso</div>
         </div>
-
         <div class="liquid-glass-card metric-card">
           <div class="metric-top">
             <span class="metric-label">Investimento em Frete</span>
@@ -92,8 +85,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
           <div class="metric-sub">Custos logísticos totais</div>
         </div>
       </div>
-
-      <!-- Filters Toolbar -->
       <div class="liquid-glass-card toolbar-card">
         <div class="search-filter-box">
           <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -107,7 +98,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
             class="glass-input filter-search"
           />
         </div>
-
         <div class="filter-controls">
           <select [(ngModel)]="selectedCarrier" class="glass-input filter-select">
             <option value="">Todas as Transportadoras</option>
@@ -117,7 +107,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
             <option value="JADLOG">Jadlog Logística</option>
             <option value="EXPRESS">Entrega Expressa</option>
           </select>
-
           <div class="status-pills">
             <button 
               class="pill-btn" 
@@ -150,8 +139,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
           </div>
         </div>
       </div>
-
-      <!-- Deliveries Table -->
       <div class="liquid-glass-card table-card">
         <div class="table-responsive">
           <table class="glass-table">
@@ -174,7 +161,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
                 </td>
               </tr>
               <tr *ngFor="let order of filteredDeliveries()">
-                <!-- Tracking code -->
                 <td>
                   <div class="tracking-cell">
                     <span class="tracking-code-link" (click)="openDetailModal(order)">
@@ -183,23 +169,17 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
                     <span class="carrier-tag">{{ order.carrier_display || order.carrier }}</span>
                   </div>
                 </td>
-
-                <!-- Carrier badge -->
                 <td>
                   <span class="badge" [ngClass]="getCarrierBadgeClass(order.carrier)">
                     {{ order.carrier_display || order.carrier }}
                   </span>
                 </td>
-
-                <!-- Product -->
                 <td>
                   <div class="prod-cell">
                     <span class="prod-name-static">{{ order.product_name }}</span>
                     <span class="prod-sku-sub">{{ order.product_sku }} - Qtd: {{ order.quantity }} un</span>
                   </div>
                 </td>
-
-                <!-- Recipient & Address -->
                 <td>
                   <div class="recipient-cell">
                     <span class="recipient-name">{{ order.recipient_name }}</span>
@@ -207,27 +187,19 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
                     <span *ngIf="order.recipient_phone" class="recipient-phone font-mono">{{ order.recipient_phone }}</span>
                   </div>
                 </td>
-
-                <!-- Shipping cost -->
                 <td>
                   <span class="currency-cream font-mono">
                     {{ order.shipping_cost | currency:'BRL':'symbol':'1.2-2' }}
                   </span>
                 </td>
-
-                <!-- Status -->
                 <td>
                   <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
                     {{ order.status_display || order.status }}
                   </span>
                 </td>
-
-                <!-- Created Date -->
                 <td class="text-xs text-cream-muted">
                   {{ order.created_at | date:'dd/MM/yyyy HH:mm' }}
                 </td>
-
-                <!-- Actions / Direct Link to Carrier Website -->
                 <td class="text-right">
                   <div class="action-buttons">
                     <a 
@@ -245,7 +217,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
                       </svg>
                       <span>Site Oficial</span>
                     </a>
-
                     <button 
                       class="icon-action-btn" 
                       (click)="openDetailModal(order)" 
@@ -265,8 +236,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
           </table>
         </div>
       </div>
-
-      <!-- Detail & Update Status Modal -->
       <div *ngIf="showModal()" class="modal-backdrop" (click)="closeModal()">
         <div class="modal-dialog modal-md" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -281,7 +250,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
               </svg>
             </button>
           </div>
-
           <div *ngIf="selectedOrder" class="modal-form">
             <div class="delivery-info-summary">
               <div class="summary-item">
@@ -313,8 +281,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
                 <span class="summary-val">{{ selectedOrder.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
               </div>
             </div>
-
-            <!-- External link box -->
             <div *ngIf="selectedOrder.external_delivery_url" class="tracking-box" style="margin-top: 14px;">
               <div>
                 <span class="tracking-label">Portal Oficial de Rastreamento</span>
@@ -334,8 +300,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
                 <span>Acessar Site do Parceiro</span>
               </a>
             </div>
-
-            <!-- Alterar Status -->
             <div class="form-group" style="margin-top: 18px;">
               <label class="form-label">Atualizar Situação do Rastreamento</label>
               <select [(ngModel)]="newStatus" class="glass-input">
@@ -346,7 +310,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
                 <option value="CANCELLED">Cancelado / Devolvido</option>
               </select>
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeModal()">Fechar</button>
               <button type="button" class="btn btn-cream" (click)="saveStatusUpdate()">
@@ -367,7 +330,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       flex-direction: column;
       gap: 24px;
     }
-
     .page-header {
       display: flex;
       align-items: flex-end;
@@ -391,8 +353,7 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       color: var(--cream-300);
       margin-top: 6px;
     }
-
-    /* Metrics Grid */
+    
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -437,8 +398,7 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       font-size: 0.78rem;
       color: var(--cream-400);
     }
-
-    /* Toolbar */
+    
     .toolbar-card {
       padding: 18px 24px;
       display: flex;
@@ -499,8 +459,7 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       background: rgba(48, 98, 234, 0.4);
       color: #fff;
     }
-
-    /* Table */
+    
     .table-card {
       padding: 16px 20px;
     }
@@ -537,7 +496,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       color: var(--cream-300);
       font-style: italic;
     }
-
     .tracking-cell {
       display: flex;
       flex-direction: column;
@@ -558,7 +516,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       font-weight: 600;
       color: var(--cream-400);
     }
-
     .prod-cell {
       display: flex;
       flex-direction: column;
@@ -573,7 +530,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       color: var(--cream-300);
       font-family: var(--font-mono);
     }
-
     .recipient-cell {
       display: flex;
       flex-direction: column;
@@ -595,7 +551,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       font-size: 0.74rem;
       color: var(--cream-400);
     }
-
     .action-buttons {
       display: flex;
       align-items: center;
@@ -620,8 +575,7 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       background: rgba(48, 98, 234, 0.45);
       color: #fff;
     }
-
-    /* Badges */
+    
     .badge-carrier-correios {
       background: rgba(234, 179, 8, 0.15);
       color: #fde047;
@@ -647,8 +601,7 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       color: #6ee7b7;
       border: 1px solid rgba(16, 185, 129, 0.35);
     }
-
-    /* Modal */
+    
     .delivery-info-summary {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -673,7 +626,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       font-size: 0.9rem;
       color: var(--cream-100);
     }
-
     .tracking-box {
       background: rgba(4, 9, 24, 0.7);
       border: 1px dashed rgba(235, 224, 198, 0.25);
@@ -696,7 +648,6 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
       color: #38bdf8;
       letter-spacing: 0.08em;
     }
-
     @media (max-width: 900px) {
       .metrics-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -718,38 +669,29 @@ import { DeliveryOrder, DeliveryCarrier, DeliveryStatus } from '../../models/inv
 export class DeliveryListComponent implements OnInit {
   inventoryService = inject(InventoryService);
   toast = inject(ToastService);
-
   searchTerm: string = '';
   selectedCarrier: string = '';
   selectedStatus: string = '';
-
   showModal = signal<boolean>(false);
   selectedOrder: DeliveryOrder | null = null;
   newStatus: DeliveryStatus = 'IN_TRANSIT';
-
   ngOnInit() {
     this.inventoryService.loadDeliveries().subscribe();
   }
-
   totalCount(): number {
     return this.inventoryService.deliveries().length;
   }
-
   inTransitCount(): number {
     return this.inventoryService.deliveries().filter(d => d.status === 'IN_TRANSIT' || d.status === 'DISPATCHED').length;
   }
-
   deliveredCount(): number {
     return this.inventoryService.deliveries().filter(d => d.status === 'DELIVERED').length;
   }
-
   totalShippingCost(): number {
     return this.inventoryService.deliveries().reduce((acc, d) => acc + (Number(d.shipping_cost) || 0), 0);
   }
-
   filteredDeliveries(): DeliveryOrder[] {
     let orders = this.inventoryService.deliveries();
-
     if (this.searchTerm.trim()) {
       const q = this.searchTerm.toLowerCase();
       orders = orders.filter(o => 
@@ -760,18 +702,14 @@ export class DeliveryListComponent implements OnInit {
         (o.product_sku && o.product_sku.toLowerCase().includes(q))
       );
     }
-
     if (this.selectedCarrier) {
       orders = orders.filter(o => o.carrier === this.selectedCarrier);
     }
-
     if (this.selectedStatus) {
       orders = orders.filter(o => o.status === this.selectedStatus);
     }
-
     return orders;
   }
-
   getCarrierBadgeClass(carrier: DeliveryCarrier): string {
     switch (carrier) {
       case 'CORREIOS': return 'badge-carrier-correios';
@@ -782,7 +720,6 @@ export class DeliveryListComponent implements OnInit {
       default: return 'badge-carrier-correios';
     }
   }
-
   getStatusBadgeClass(status: DeliveryStatus): string {
     switch (status) {
       case 'PREPARING': return 'badge-low';
@@ -793,21 +730,17 @@ export class DeliveryListComponent implements OnInit {
       default: return 'badge-normal';
     }
   }
-
   openDetailModal(order: DeliveryOrder) {
     this.selectedOrder = order;
     this.newStatus = order.status;
     this.showModal.set(true);
   }
-
   closeModal() {
     this.showModal.set(false);
     this.selectedOrder = null;
   }
-
   saveStatusUpdate() {
     if (!this.selectedOrder) return;
-
     this.inventoryService.updateDeliveryStatus(this.selectedOrder.id, this.newStatus).subscribe({
       next: () => {
         this.toast.success(`Situação da entrega ${this.selectedOrder?.tracking_code} atualizada!`);

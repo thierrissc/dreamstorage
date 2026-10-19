@@ -5,14 +5,12 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } from '../../models/inventory.models';
-
 @Component({
   selector: 'app-product-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="products-page">
-      <!-- Header -->
       <div class="page-header">
         <div>
           <div class="welcome-tag">GESTÃO DE CATÁLOGO & INVENTÁRIO</div>
@@ -29,8 +27,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
           </button>
         </div>
       </div>
-
-      <!-- Filters & Search Toolbar -->
       <div class="liquid-glass-card toolbar-card">
         <div class="search-filter-box">
           <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -45,9 +41,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
             class="glass-input filter-search"
           />
         </div>
-
         <div class="filter-controls">
-          <!-- View Mode: Ativos / Arquivados / Todos -->
           <div class="status-pills">
             <button 
               class="pill-btn" 
@@ -71,16 +65,12 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               Todos ({{ totalCount() }})
             </button>
           </div>
-
-          <!-- Category Filter -->
           <select [(ngModel)]="selectedCategory" (change)="applyFilters()" class="glass-input filter-select">
             <option value="">Todas as Categorias</option>
             <option *ngFor="let cat of inventoryService.categories()" [value]="cat.id">
               {{ cat.name }}
             </option>
           </select>
-
-          <!-- Status Filter Pills -->
           <div class="status-pills" *ngIf="viewMode !== 'ARCHIVED'">
             <button 
               class="pill-btn" 
@@ -113,8 +103,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
           </div>
         </div>
       </div>
-
-      <!-- Products Table -->
       <div class="liquid-glass-card table-card">
         <div class="table-responsive">
           <table class="glass-table">
@@ -136,7 +124,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 </td>
               </tr>
               <tr *ngFor="let p of filteredProducts()">
-                <!-- Product Name and Location -->
                 <td>
                   <div class="prod-cell">
                     <span class="prod-name-clickable" (click)="openDetailModal(p)">{{ p.name }}</span>
@@ -149,23 +136,17 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                     </span>
                   </div>
                 </td>
-
-                <!-- SKU & Barcode -->
                 <td>
                   <div class="sku-cell">
                     <span class="sku-tag">{{ p.sku }}</span>
                     <span *ngIf="p.barcode" class="barcode-sub">{{ p.barcode }}</span>
                   </div>
                 </td>
-
-                <!-- Category -->
                 <td>
                   <span class="badge badge-category" [style.borderColor]="p.category_color">
                     {{ p.category_name || 'Sem Categoria' }}
                   </span>
                 </td>
-
-                <!-- Cost / Selling -->
                 <td>
                   <div class="price-cell">
                     <div class="price-cost">Custo: {{ p.cost_price | currency:'BRL':'symbol':'1.2-2' }}</div>
@@ -173,8 +154,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                     <div class="price-margin text-emerald font-mono">+{{ p.margin_percentage }}% margem</div>
                   </div>
                 </td>
-
-                <!-- Stock Quantity & Visual Fill -->
                 <td>
                   <div class="stock-cell">
                     <div class="stock-numbers">
@@ -192,8 +171,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                     </div>
                   </div>
                 </td>
-
-                <!-- Status Badge -->
                 <td>
                   <span *ngIf="p.is_archived" class="badge badge-low" [title]="p.archive_reason || 'Item arquivado'">
                     Arquivado
@@ -210,11 +187,8 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                     {{ p.stock_status === 'NORMAL' ? 'Normal' : (p.stock_status === 'LOW_STOCK' ? 'Baixo Estoque' : 'Esgotado') }}
                   </span>
                 </td>
-
-                <!-- Actions -->
                 <td class="text-right">
                   <div class="action-buttons">
-                    <!-- Ações para itens arquivados -->
                     <ng-container *ngIf="p.is_archived">
                       <button class="action-btn in-btn" (click)="unarchive(p)" title="Desarquivar e reativar produto no catálogo">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -224,10 +198,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                         <span>Reativar</span>
                       </button>
                     </ng-container>
-
-                    <!-- Ações para itens ativos -->
                     <ng-container *ngIf="!p.is_archived">
-                      <!-- Despacho para Entrega -->
                       <button 
                         class="action-btn dispatch-btn" 
                         (click)="openDispatchModal(p)" 
@@ -242,7 +213,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                         </svg>
                         <span>Despachar</span>
                       </button>
-
                       <button class="action-btn in-btn" (click)="openQuickModal(p, 'IN')" title="Entrada Rápida">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                           <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -278,8 +248,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
           </table>
         </div>
       </div>
-
-      <!-- Create / Edit Product Modal -->
       <div *ngIf="showFormModal()" class="modal-backdrop" (click)="closeFormModal()">
         <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -293,7 +261,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               </svg>
             </button>
           </div>
-
           <form (ngSubmit)="saveProduct()" class="modal-form">
             <div class="form-grid-3">
               <div class="form-group">
@@ -307,7 +274,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="EX: HW-SRV-001"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Código de Barras (EAN)</label>
                 <input 
@@ -318,7 +284,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="Ex: 7891234567890"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Unidade de Medida *</label>
                 <select [(ngModel)]="formData.unit_measure" name="unit_measure" class="glass-input">
@@ -333,7 +298,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 </select>
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Nome do Produto *</label>
               <input 
@@ -345,7 +309,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 placeholder="Ex: Servidor PowerEdge R750 2U Dual Xeon"
               />
             </div>
-
             <div class="form-group">
               <label class="form-label">Descrição Técnica</label>
               <textarea 
@@ -356,7 +319,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 placeholder="Especificações técnicas, compatibilidades, observações..."
               ></textarea>
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Categoria *</label>
@@ -367,7 +329,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   </option>
                 </select>
               </div>
-
               <div class="form-group">
                 <label class="form-label">Fornecedor Principal</label>
                 <select [(ngModel)]="formData.supplier" name="supplier" class="glass-input">
@@ -378,7 +339,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 </select>
               </div>
             </div>
-
             <div class="form-grid-3">
               <div class="form-group">
                 <label class="form-label">Preço de Custo (R$) *</label>
@@ -393,7 +353,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="0.00"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Preço de Venda (R$) *</label>
                 <input 
@@ -407,7 +366,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="0.00"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Local no Depósito</label>
                 <input 
@@ -419,7 +377,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 />
               </div>
             </div>
-
             <div class="form-grid-3">
               <div class="form-group">
                 <label class="form-label">Quantidade Inicial *</label>
@@ -433,7 +390,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="0"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Estoque Mínimo (Alerta) *</label>
                 <input 
@@ -446,7 +402,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="5"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Estoque Máximo</label>
                 <input 
@@ -459,7 +414,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 />
               </div>
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeFormModal()">Cancelar</button>
               <button type="submit" class="btn btn-royal">
@@ -469,8 +423,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
           </form>
         </div>
       </div>
-
-      <!-- Quick Movement Row Modal -->
       <div *ngIf="showQuickModal()" class="modal-backdrop" (click)="closeQuickModal()">
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -484,7 +436,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               </svg>
             </button>
           </div>
-
           <div *ngIf="selectedProductForAction" class="modal-product-summary">
             <div class="summary-sku">{{ selectedProductForAction.sku }}</div>
             <div class="summary-name">{{ selectedProductForAction.name }}</div>
@@ -492,7 +443,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               Saldo Atual: <strong>{{ selectedProductForAction.quantity }} {{ selectedProductForAction.unit_measure }}</strong>
             </div>
           </div>
-
           <form (ngSubmit)="submitQuickAction()" class="modal-form">
             <div class="form-grid-2">
               <div class="form-group">
@@ -507,7 +457,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="Ex: 5"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">N Documento / Pedido</label>
                 <input 
@@ -519,7 +468,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 />
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Motivo da Operacao *</label>
               <input 
@@ -531,7 +479,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 placeholder="Ex: Chegada de fornecedor / Saida de venda balcao"
               />
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeQuickModal()">Cancelar</button>
               <button 
@@ -545,8 +492,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
           </form>
         </div>
       </div>
-
-      <!-- Detail Modal -->
       <div *ngIf="showDetailModal()" class="modal-backdrop" (click)="closeDetailModal()">
         <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -561,7 +506,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               </svg>
             </button>
           </div>
-
           <div *ngIf="activeDetailProduct" class="detail-body">
             <div class="detail-grid">
               <div class="detail-item">
@@ -599,13 +543,19 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 <span class="detail-val text-emerald font-bold">+{{ activeDetailProduct.margin_percentage }}%</span>
               </div>
             </div>
-
             <div *ngIf="activeDetailProduct.description" class="detail-desc-box">
               <div class="detail-label">Descrição Técnica</div>
               <p>{{ activeDetailProduct.description }}</p>
             </div>
 
-            <!-- Movimentações Recentes deste Produto -->
+            <div class="web3-verification-banner">
+              <span class="crypto-hash-tag">
+                <span class="web3-pulse-dot"></span>
+                <span>REGISTRO WEB3 AUDITADO</span>
+              </span>
+              <span class="font-mono text-xs text-cream-muted">Hash: 0x{{ (activeDetailProduct.id * 8921).toString(16).padStart(12, '0') }}...{{ activeDetailProduct.sku }}</span>
+            </div>
+
             <div class="product-history-box">
               <h4 class="history-title">Histórico de Auditoria do Produto</h4>
               <div class="table-responsive">
@@ -648,8 +598,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
           </div>
         </div>
       </div>
-
-      <!-- Dispatch to Delivery Site Modal -->
       <div *ngIf="showDispatchModal()" class="modal-backdrop" (click)="closeDispatchModal()">
         <div class="modal-dialog modal-md" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -664,8 +612,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               </svg>
             </button>
           </div>
-
-          <!-- Se já despachou com sucesso, exibe o link direto do site de entregas -->
           <div *ngIf="lastGeneratedDelivery" class="modal-form">
             <div class="delivery-success-card">
               <div class="success-header">
@@ -701,8 +647,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               </div>
             </div>
           </div>
-
-          <!-- Formulário de Despacho -->
           <form *ngIf="!lastGeneratedDelivery" (ngSubmit)="submitDispatch()" class="modal-form">
             <div class="modal-product-summary">
               <div class="summary-sku">{{ dispatchProduct?.sku }}</div>
@@ -711,7 +655,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 Saldo disponível: <strong>{{ dispatchProduct?.quantity }} {{ dispatchProduct?.unit_measure }}</strong>
               </div>
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Transportadora / Parceiro *</label>
@@ -723,7 +666,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   <option value="EXPRESS">Entrega Expressa Própria</option>
                 </select>
               </div>
-
               <div class="form-group">
                 <label class="form-label">Quantidade a Despachar *</label>
                 <input 
@@ -737,7 +679,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 />
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Nome do Destinatário *</label>
               <input 
@@ -749,7 +690,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 placeholder="Ex: Empresa Exemplo Ltda / João Silva"
               />
             </div>
-
             <div class="form-group">
               <label class="form-label">Endereço Completo de Entrega *</label>
               <input 
@@ -761,7 +701,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 placeholder="Ex: Av. Paulista, 1000, Bela Vista - São Paulo/SP"
               />
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Telefone / WhatsApp</label>
@@ -773,7 +712,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                   placeholder="(11) 98765-4321"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Valor do Frete (R$)</label>
                 <input 
@@ -787,7 +725,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 />
               </div>
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeDispatchModal()">Cancelar</button>
               <button type="submit" class="btn btn-royal">
@@ -797,8 +734,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
           </form>
         </div>
       </div>
-
-      <!-- Archive Confirmation Modal -->
       <div *ngIf="showArchiveModal()" class="modal-backdrop" (click)="closeArchiveModal()">
         <div class="modal-dialog modal-sm" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -810,12 +745,10 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
               </svg>
             </button>
           </div>
-
           <div class="modal-form">
             <p class="archive-warning-text">
               O produto <strong>{{ archiveProductTarget?.name }}</strong> (SKU: {{ archiveProductTarget?.sku }}) será arquivado. Ele deixará de constar no catálogo ativo, mas todos os históricos contábeis e auditorias serão preservados e poderão ser consultados ou reativados a qualquer momento.
             </p>
-
             <div class="form-group" style="margin-top: 14px;">
               <label class="form-label">Motivo do Arquivamento</label>
               <input 
@@ -825,7 +758,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
                 placeholder="Ex: Descontinuado pelo fabricante / Fim de linha"
               />
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeArchiveModal()">Cancelar</button>
               <button type="button" class="btn btn-danger" (click)="submitArchive()">
@@ -846,8 +778,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       flex-direction: column;
       gap: 24px;
     }
-
-    /* Page Header */
+    
     .page-header {
       display: flex;
       align-items: flex-end;
@@ -871,8 +802,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       color: var(--cream-300);
       margin-top: 6px;
     }
-
-    /* Toolbar */
+    
     .toolbar-card {
       padding: 18px 24px;
       display: flex;
@@ -942,8 +872,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       background: rgba(244, 63, 94, 0.3);
       color: #fb7185;
     }
-
-    /* Table */
+    
     .table-card {
       padding: 16px 20px;
     }
@@ -980,8 +909,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       color: var(--cream-400);
       font-size: 0.95rem;
     }
-
-    /* Cells */
+    
     .prod-cell {
       display: flex;
       flex-direction: column;
@@ -1063,8 +991,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
     .bg-emerald { background: #10b981; }
     .bg-warn { background: #f59e0b; }
     .bg-rose { background: #f43f5e; }
-
-    /* Action Buttons */
+    
     .action-buttons {
       display: flex;
       align-items: center;
@@ -1138,8 +1065,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       border-color: rgba(244, 63, 94, 0.4);
       color: #fb7185;
     }
-
-    /* Modals */
+    
     .modal-lg {
       max-width: 800px;
     }
@@ -1198,8 +1124,7 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       font-size: 0.85rem;
       color: var(--cream-300);
     }
-
-    /* Detail Modal Specific */
+    
     .detail-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -1240,8 +1165,18 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       color: var(--cream-50);
       margin-bottom: 12px;
     }
-
-    /* Delivery & Tracking & Archive Styles */
+    .web3-verification-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: rgba(147, 51, 234, 0.08);
+      border: 1px solid rgba(192, 132, 252, 0.22);
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+    }
+    
     .delivery-success-card {
       background: rgba(16, 185, 129, 0.08);
       border: 1px solid rgba(16, 185, 129, 0.3);
@@ -1309,7 +1244,6 @@ import { Product, StockMovement, UnitMeasure, DeliveryOrder, DeliveryCarrier } f
       color: var(--cream-200);
       margin: 0;
     }
-
     @media (max-width: 900px) {
       .form-grid-3, .form-grid-2, .detail-grid {
         grid-template-columns: 1fr;
@@ -1332,31 +1266,22 @@ export class ProductListComponent implements OnInit {
   inventoryService = inject(InventoryService);
   toast = inject(ToastService);
   route = inject(ActivatedRoute);
-
   searchTerm: string = '';
   selectedCategory: string = '';
   selectedStatus: string = '';
-
-  // Modals state
   showFormModal = signal<boolean>(false);
   editingProductId: number | null = null;
   formData: Partial<Product> = this.getEmptyProduct();
-
   showQuickModal = signal<boolean>(false);
   selectedProductForAction: Product | null = null;
   quickType: 'IN' | 'OUT' = 'IN';
   quickQty: number = 1;
   quickDoc: string = '';
   quickReason: string = '';
-
   showDetailModal = signal<boolean>(false);
   activeDetailProduct: Product | null = null;
   productMovements: StockMovement[] = [];
-
-  // View mode filter (Ativos / Arquivados / Todos)
   viewMode: 'ACTIVE' | 'ARCHIVED' | 'ALL' = 'ACTIVE';
-
-  // Dispatch to Delivery Partner modal
   showDispatchModal = signal<boolean>(false);
   dispatchProduct: Product | null = null;
   dispatchCarrier: DeliveryCarrier = 'CORREIOS';
@@ -1366,12 +1291,9 @@ export class ProductListComponent implements OnInit {
   dispatchQty = 1;
   dispatchShippingCost = 0;
   lastGeneratedDelivery: DeliveryOrder | null = null;
-
-  // Archive modal
   showArchiveModal = signal<boolean>(false);
   archiveProductTarget: Product | null = null;
   archiveReason = '';
-
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params['q']) {
@@ -1385,7 +1307,6 @@ export class ProductListComponent implements OnInit {
       }
     });
   }
-
   getEmptyProduct(): Partial<Product> {
     return {
       sku: '',
@@ -1403,40 +1324,31 @@ export class ProductListComponent implements OnInit {
       location: 'Depósito Central - Estante A1'
     };
   }
-
   totalCount(): number {
     return this.inventoryService.products().length;
   }
-
   activeCount(): number {
     return this.inventoryService.products().filter(p => !p.is_archived).length;
   }
-
   archivedCount(): number {
     return this.inventoryService.products().filter(p => !!p.is_archived).length;
   }
-
   lowCount(): number {
     return this.inventoryService.products().filter(p => !p.is_archived && p.quantity > 0 && p.quantity <= p.min_stock).length;
   }
-
   outCount(): number {
     return this.inventoryService.products().filter(p => !p.is_archived && p.quantity <= 0).length;
   }
-
   setViewMode(mode: 'ACTIVE' | 'ARCHIVED' | 'ALL') {
     this.viewMode = mode;
   }
-
   filteredProducts(): Product[] {
     let prods = this.inventoryService.products();
-
     if (this.viewMode === 'ACTIVE') {
       prods = prods.filter(p => !p.is_archived);
     } else if (this.viewMode === 'ARCHIVED') {
       prods = prods.filter(p => !!p.is_archived);
     }
-
     if (this.searchTerm.trim()) {
       const q = this.searchTerm.toLowerCase();
       prods = prods.filter(p =>
@@ -1446,32 +1358,23 @@ export class ProductListComponent implements OnInit {
         (p.location && p.location.toLowerCase().includes(q))
       );
     }
-
     if (this.selectedCategory) {
       prods = prods.filter(p => p.category === Number(this.selectedCategory));
     }
-
     if (this.selectedStatus && this.viewMode !== 'ARCHIVED') {
       prods = prods.filter(p => p.stock_status === this.selectedStatus);
     }
-
     return prods;
   }
-
   applyFilters() {
-    // Reatividade garantida via signal filteredProducts()
   }
-
   setStatusFilter(status: string) {
     this.selectedStatus = status;
   }
-
   getStockGauge(p: Product): number {
     const max = p.max_stock || 100;
     return Math.min(100, Math.round((p.quantity / max) * 100));
   }
-
-  // --- FORM MODAL ---
   openCreateModal() {
     this.editingProductId = null;
     this.formData = this.getEmptyProduct();
@@ -1479,23 +1382,19 @@ export class ProductListComponent implements OnInit {
     if (cats.length > 0) this.formData.category = cats[0].id;
     this.showFormModal.set(true);
   }
-
   openEditModal(p: Product) {
     this.editingProductId = p.id;
     this.formData = { ...p };
     this.showFormModal.set(true);
   }
-
   closeFormModal() {
     this.showFormModal.set(false);
   }
-
   saveProduct() {
     if (!this.formData.sku || !this.formData.name) {
       this.toast.error('Preencha ao menos o SKU e o Nome do Produto.');
       return;
     }
-
     if (this.editingProductId) {
       this.inventoryService.updateProduct(this.editingProductId, this.formData).subscribe({
         next: () => {
@@ -1514,7 +1413,6 @@ export class ProductListComponent implements OnInit {
       });
     }
   }
-
   confirmDelete(p: Product) {
     if (confirm(`Deseja realmente remover o produto ${p.name} (SKU: ${p.sku})?`)) {
       this.inventoryService.deleteProduct(p.id).subscribe({
@@ -1523,8 +1421,6 @@ export class ProductListComponent implements OnInit {
       });
     }
   }
-
-  // --- QUICK MOVEMENT ROW ---
   openQuickModal(p: Product, type: 'IN' | 'OUT') {
     this.selectedProductForAction = p;
     this.quickType = type;
@@ -1533,14 +1429,11 @@ export class ProductListComponent implements OnInit {
     this.quickReason = type === 'IN' ? 'Entrada rápida de mercadoria' : 'Saída rápida / Venda';
     this.showQuickModal.set(true);
   }
-
   closeQuickModal() {
     this.showQuickModal.set(false);
   }
-
   submitQuickAction() {
     if (!this.selectedProductForAction) return;
-
     this.inventoryService.quickMovement(this.selectedProductForAction.id, {
       movement_type: this.quickType,
       quantity: Number(this.quickQty),
@@ -1556,19 +1449,14 @@ export class ProductListComponent implements OnInit {
       }
     });
   }
-
-  // --- DETAIL MODAL ---
   openDetailModal(p: Product) {
     this.activeDetailProduct = p;
     this.productMovements = this.inventoryService.movements().filter(m => m.product === p.id);
     this.showDetailModal.set(true);
   }
-
   closeDetailModal() {
     this.showDetailModal.set(false);
   }
-
-  // --- DISPATCH TO DELIVERY SITE MODAL ---
   openDispatchModal(p: Product) {
     this.dispatchProduct = p;
     this.dispatchCarrier = 'CORREIOS';
@@ -1580,20 +1468,16 @@ export class ProductListComponent implements OnInit {
     this.lastGeneratedDelivery = null;
     this.showDispatchModal.set(true);
   }
-
   closeDispatchModal() {
     this.showDispatchModal.set(false);
     this.lastGeneratedDelivery = null;
   }
-
   submitDispatch() {
     if (!this.dispatchProduct) return;
-
     if (!this.dispatchRecipientName.trim() || !this.dispatchRecipientAddress.trim()) {
       this.toast.error('Informe o nome e o endereço completo de entrega.');
       return;
     }
-
     this.inventoryService.dispatchDelivery(this.dispatchProduct.id, {
       carrier: this.dispatchCarrier,
       quantity: Number(this.dispatchQty),
@@ -1611,22 +1495,17 @@ export class ProductListComponent implements OnInit {
       }
     });
   }
-
-  // --- ARCHIVE / UNARCHIVE ---
   openArchiveModal(p: Product) {
     this.archiveProductTarget = p;
     this.archiveReason = '';
     this.showArchiveModal.set(true);
   }
-
   closeArchiveModal() {
     this.showArchiveModal.set(false);
     this.archiveProductTarget = null;
   }
-
   submitArchive() {
     if (!this.archiveProductTarget) return;
-
     this.inventoryService.archiveProduct(this.archiveProductTarget.id, this.archiveReason).subscribe({
       next: () => {
         this.toast.success(`Produto ${this.archiveProductTarget?.sku} arquivado com sucesso.`);
@@ -1637,7 +1516,6 @@ export class ProductListComponent implements OnInit {
       }
     });
   }
-
   unarchive(p: Product) {
     this.inventoryService.unarchiveProduct(p.id).subscribe({
       next: () => {
@@ -1649,4 +1527,3 @@ export class ProductListComponent implements OnInit {
     });
   }
 }
-

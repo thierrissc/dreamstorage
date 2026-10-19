@@ -46,7 +46,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       cursor: not-allowed;
       pointer-events: none;
     }
-    /* Sizes */
+    
     .ui-btn-sm {
       padding: 6px 12px;
       font-size: 0.8rem;
@@ -68,7 +68,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
       padding: 0;
       border-radius: 10px;
     }
-    /* Variants */
+    
     .ui-btn-royal {
       background: linear-gradient(135deg, var(--royal-500) 0%, var(--royal-700) 100%);
       color: #ffffff;

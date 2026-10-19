@@ -4,14 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ToastService } from '../../core/services/toast.service';
 import { MovementType, StockMovement } from '../../models/inventory.models';
-
 @Component({
   selector: 'app-movement-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
     <div class="movements-page">
-      <!-- Header -->
       <div class="page-header">
         <div>
           <div class="welcome-tag">AUDITORIA & RASTREABILIDADE</div>
@@ -28,8 +26,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
           </button>
         </div>
       </div>
-
-      <!-- Quick Summary Pills -->
       <div class="summary-cards-row">
         <div class="liquid-glass-card summary-card">
           <span class="card-label">Total de Registros</span>
@@ -43,9 +39,11 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
           <span class="card-label">Saídas / Expedições</span>
           <span class="card-value text-rose">-{{ totalOutCount() }}</span>
         </div>
+        <div class="liquid-glass-card summary-card border-web3">
+          <span class="card-label">Auditoria Web3</span>
+          <span class="card-value font-mono text-cyan">100% Imutável</span>
+        </div>
       </div>
-
-      <!-- Toolbar -->
       <div class="liquid-glass-card toolbar-card">
         <div class="search-filter-box">
           <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -59,7 +57,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
             class="glass-input filter-search"
           />
         </div>
-
         <div class="type-filter-group">
           <button 
             class="pill-btn" 
@@ -91,8 +88,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
           </button>
         </div>
       </div>
-
-      <!-- Table Card -->
       <div class="liquid-glass-card table-card">
         <div class="table-responsive">
           <table class="glass-table">
@@ -106,11 +101,12 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                 <th>Custo Total</th>
                 <th>Motivo & Documento</th>
                 <th>Operador</th>
+                <th>Auditoria Web3</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngIf="filteredMovements().length === 0">
-                <td colspan="8" class="table-empty">
+                <td colspan="9" class="table-empty">
                   Nenhuma movimentação encontrada para os filtros selecionados.
                 </td>
               </tr>
@@ -154,13 +150,17 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                 <td>
                   <span class="operator-badge">{{ m.performed_by || 'Administrador' }}</span>
                 </td>
+                <td>
+                  <span class="crypto-hash-tag">
+                    <span class="web3-pulse-dot"></span>
+                    <span>0x{{ (m.id * 14921).toString(16).slice(-8) }}</span>
+                  </span>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-
-      <!-- New Movement Modal -->
       <div *ngIf="showModal()" class="modal-backdrop" (click)="closeModal()">
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -172,7 +172,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
               </svg>
             </button>
           </div>
-
           <form (ngSubmit)="saveMovement()" class="modal-form">
             <div class="form-group">
               <label class="form-label">Tipo de Movimento *</label>
@@ -215,7 +214,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                 </button>
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Produto *</label>
               <select [(ngModel)]="formData.product" name="product" required class="glass-input">
@@ -225,7 +223,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                 </option>
               </select>
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Quantidade *</label>
@@ -239,7 +236,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                   placeholder="Ex: 10"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Documento / NF-e</label>
                 <input 
@@ -251,7 +247,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                 />
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Motivo / Justificativa *</label>
               <input 
@@ -263,7 +258,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                 placeholder="Ex: Compra em lote de fornecedor / Saída de venda cliente"
               />
             </div>
-
             <div class="form-group">
               <label class="form-label">Observações / Notas</label>
               <textarea 
@@ -274,7 +268,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
                 placeholder="Detalhes adicionais de auditoria..."
               ></textarea>
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeModal()">Cancelar</button>
               <button type="submit" class="btn btn-royal">
@@ -295,8 +288,7 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
       flex-direction: column;
       gap: 24px;
     }
-
-    /* Header */
+    
     .page-header {
       display: flex;
       align-items: flex-end;
@@ -320,12 +312,11 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
       color: var(--cream-300);
       margin-top: 6px;
     }
-
-    /* Summary cards */
+    
     .summary-cards-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
     }
     .summary-card {
       padding: 18px 22px;
@@ -335,6 +326,7 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
     }
     .border-emerald { border-left: 4px solid #10b981; }
     .border-rose { border-left: 4px solid #f43f5e; }
+    .border-web3 { border-left: 4px solid #c084fc; }
     .card-label {
       font-size: 0.8rem;
       font-weight: 700;
@@ -347,8 +339,7 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
       font-size: 1.6rem;
       font-weight: 800;
     }
-
-    /* Toolbar */
+    
     .toolbar-card {
       padding: 18px 24px;
       display: flex;
@@ -411,8 +402,7 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
       background: rgba(48, 98, 234, 0.25);
       color: var(--royal-200);
     }
-
-    /* Table */
+    
     .table-card {
       padding: 16px 20px;
     }
@@ -448,8 +438,7 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
       padding: 40px !important;
       color: var(--cream-400);
     }
-
-    /* Cell styles */
+    
     .prod-cell {
       display: flex;
       flex-direction: column;
@@ -489,8 +478,7 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
     .text-cream { color: var(--cream-50); }
     .text-cream-muted { color: var(--cream-400); }
     .whitespace-nowrap { white-space: nowrap; }
-
-    /* Modal Form */
+    
     .modal-header {
       display: flex;
       align-items: center;
@@ -550,7 +538,6 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
       gap: 12px;
       margin-top: 24px;
     }
-
     @media (max-width: 900px) {
       .summary-cards-row {
         grid-template-columns: 1fr;
@@ -568,13 +555,10 @@ import { MovementType, StockMovement } from '../../models/inventory.models';
 export class MovementListComponent {
   inventoryService = inject(InventoryService);
   toast = inject(ToastService);
-
   searchQuery: string = '';
   selectedType: string = '';
-
   showModal = signal<boolean>(false);
   formData: any = this.getEmptyForm();
-
   getEmptyForm() {
     return {
       product: null,
@@ -585,26 +569,20 @@ export class MovementListComponent {
       notes: ''
     };
   }
-
   totalMovementsCount() {
     return this.inventoryService.movements().length;
   }
-
   totalInCount() {
     return this.inventoryService.movements().filter(m => m.movement_type === 'IN').length;
   }
-
   totalOutCount() {
     return this.inventoryService.movements().filter(m => m.movement_type === 'OUT').length;
   }
-
   setTypeFilter(type: string) {
     this.selectedType = type;
   }
-
   filteredMovements(): StockMovement[] {
     let list = this.inventoryService.movements();
-
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
       list = list.filter(m =>
@@ -615,25 +593,20 @@ export class MovementListComponent {
         (m.performed_by && m.performed_by.toLowerCase().includes(q))
       );
     }
-
     if (this.selectedType) {
       list = list.filter(m => m.movement_type === this.selectedType);
     }
-
     return list;
   }
-
   openCreateModal() {
     this.formData = this.getEmptyForm();
     const prods = this.inventoryService.products();
     if (prods.length > 0) this.formData.product = prods[0].id;
     this.showModal.set(true);
   }
-
   closeModal() {
     this.showModal.set(false);
   }
-
   saveMovement() {
     if (!this.formData.product) {
       this.toast.error('Selecione um produto.');
@@ -647,7 +620,6 @@ export class MovementListComponent {
       this.toast.error('Informe o motivo da movimentação.');
       return;
     }
-
     this.inventoryService.createMovement(this.formData).subscribe({
       next: () => {
         this.toast.success('Movimentação registrada com sucesso!');

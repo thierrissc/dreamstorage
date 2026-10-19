@@ -4,14 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Category, Supplier } from '../../models/inventory.models';
-
 @Component({
   selector: 'app-category-supplier',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
     <div class="cat-sup-page">
-      <!-- Header -->
       <div class="page-header">
         <div>
           <div class="welcome-tag">ORGANIZAÇÃO & CADEIA DE SUPRIMENTOS</div>
@@ -35,8 +33,6 @@ import { Category, Supplier } from '../../models/inventory.models';
           </button>
         </div>
       </div>
-
-      <!-- Tab Switcher -->
       <div class="tabs-container">
         <button 
           class="tab-btn" 
@@ -53,8 +49,6 @@ import { Category, Supplier } from '../../models/inventory.models';
           Fornecedores Homologados ({{ inventoryService.suppliers().length }})
         </button>
       </div>
-
-      <!-- CATEGORIES VIEW -->
       <div *ngIf="activeTab === 'categories'" class="categories-grid">
         <div *ngFor="let cat of inventoryService.categories()" class="liquid-glass-card cat-card">
           <div class="cat-header">
@@ -64,17 +58,13 @@ import { Category, Supplier } from '../../models/inventory.models';
             </div>
             <span class="badge badge-category">{{ cat.products_count || 0 }} produtos</span>
           </div>
-
           <p class="cat-desc">{{ cat.description || 'Sem descricao cadastrada.' }}</p>
-
           <div class="cat-footer">
             <span class="cat-slug font-mono">/{{ cat.slug }}</span>
             <div class="color-preview" [style.background]="cat.color" title="Cor identificadora"></div>
           </div>
         </div>
       </div>
-
-      <!-- SUPPLIERS VIEW -->
       <div *ngIf="activeTab === 'suppliers'" class="suppliers-grid">
         <div *ngFor="let sup of inventoryService.suppliers()" class="liquid-glass-card sup-card">
           <div class="sup-header">
@@ -84,7 +74,6 @@ import { Category, Supplier } from '../../models/inventory.models';
             </div>
             <span class="badge badge-cream">{{ sup.products_count || 0 }} itens</span>
           </div>
-
           <div class="sup-info-list">
             <div *ngIf="sup.contact_person" class="sup-info-item">
               <span class="info-label">Contato:</span>
@@ -105,8 +94,6 @@ import { Category, Supplier } from '../../models/inventory.models';
           </div>
         </div>
       </div>
-
-      <!-- New Category Modal -->
       <div *ngIf="showCategoryModal()" class="modal-backdrop" (click)="closeCategoryModal()">
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -118,7 +105,6 @@ import { Category, Supplier } from '../../models/inventory.models';
               </svg>
             </button>
           </div>
-
           <form (ngSubmit)="saveCategory()" class="modal-form">
             <div class="form-group">
               <label class="form-label">Nome da Categoria *</label>
@@ -131,7 +117,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                 placeholder="Ex: Dispositivos de Fibra Optica"
               />
             </div>
-
             <div class="form-group">
               <label class="form-label">Descricao</label>
               <textarea 
@@ -142,7 +127,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                 placeholder="Finalidade desta categoria..."
               ></textarea>
             </div>
-
             <div class="form-group">
               <label class="form-label">Cor Identificadora *</label>
               <div class="color-picker-row">
@@ -161,7 +145,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                 />
               </div>
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeCategoryModal()">Cancelar</button>
               <button type="submit" class="btn btn-royal">Criar Categoria</button>
@@ -169,8 +152,6 @@ import { Category, Supplier } from '../../models/inventory.models';
           </form>
         </div>
       </div>
-
-      <!-- New Supplier Modal -->
       <div *ngIf="showSupplierModal()" class="modal-backdrop" (click)="closeSupplierModal()">
         <div class="modal-dialog" (click)="$event.stopPropagation()">
           <div class="modal-header">
@@ -182,7 +163,6 @@ import { Category, Supplier } from '../../models/inventory.models';
               </svg>
             </button>
           </div>
-
           <form (ngSubmit)="saveSupplier()" class="modal-form">
             <div class="form-group">
               <label class="form-label">Razão Social / Nome da Empresa *</label>
@@ -195,7 +175,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                 placeholder="Ex: Synapse Tech Distribuição"
               />
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">CNPJ / CPF</label>
@@ -207,7 +186,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                   placeholder="00.000.000/0001-00"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Representante / Contato</label>
                 <input 
@@ -219,7 +197,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                 />
               </div>
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">E-mail</label>
@@ -231,7 +208,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                   placeholder="vendas@empresa.com"
                 />
               </div>
-
               <div class="form-group">
                 <label class="form-label">Telefone / WhatsApp</label>
                 <input 
@@ -243,7 +219,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                 />
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Endereço Comercial</label>
               <input 
@@ -254,7 +229,6 @@ import { Category, Supplier } from '../../models/inventory.models';
                 placeholder="Rua, Número, Bairro, Cidade - UF"
               />
             </div>
-
             <div class="modal-actions">
               <button type="button" class="btn btn-glass" (click)="closeSupplierModal()">Cancelar</button>
               <button type="submit" class="btn btn-royal">Cadastrar Fornecedor</button>
@@ -273,8 +247,7 @@ import { Category, Supplier } from '../../models/inventory.models';
       flex-direction: column;
       gap: 24px;
     }
-
-    /* Header */
+    
     .page-header {
       display: flex;
       align-items: flex-end;
@@ -298,8 +271,7 @@ import { Category, Supplier } from '../../models/inventory.models';
       color: var(--cream-300);
       margin-top: 6px;
     }
-
-    /* Tabs */
+    
     .tabs-container {
       display: flex;
       gap: 12px;
@@ -328,15 +300,13 @@ import { Category, Supplier } from '../../models/inventory.models';
       border: 1px solid rgba(74, 124, 245, 0.4);
       box-shadow: 0 4px 16px rgba(48, 98, 234, 0.25);
     }
-
-    /* Grids */
+    
     .categories-grid, .suppliers-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 20px;
     }
-
-    /* Category Card */
+    
     .cat-card {
       padding: 22px;
       display: flex;
@@ -385,8 +355,7 @@ import { Category, Supplier } from '../../models/inventory.models';
       border-radius: 6px;
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
-
-    /* Supplier Card */
+    
     .sup-card {
       padding: 22px;
       display: flex;
@@ -429,8 +398,7 @@ import { Category, Supplier } from '../../models/inventory.models';
     .info-val {
       color: var(--cream-100);
     }
-
-    /* Modals */
+    
     .modal-header {
       display: flex;
       align-items: center;
@@ -472,10 +440,8 @@ import { Category, Supplier } from '../../models/inventory.models';
       gap: 12px;
       margin-top: 24px;
     }
-
     .font-mono { font-family: var(--font-mono); }
     .text-xs { font-size: 0.76rem; }
-
     @media (max-width: 768px) {
       .form-grid-2 {
         grid-template-columns: 1fr;
@@ -486,15 +452,11 @@ import { Category, Supplier } from '../../models/inventory.models';
 export class CategorySupplierComponent {
   inventoryService = inject(InventoryService);
   toast = inject(ToastService);
-
   activeTab: 'categories' | 'suppliers' = 'categories';
-
   showCategoryModal = signal<boolean>(false);
   catForm: Partial<Category> = { name: '', description: '', color: '#2563eb' };
-
   showSupplierModal = signal<boolean>(false);
   supForm: Partial<Supplier> = { name: '', cnpj_cpf: '', contact_person: '', email: '', phone: '', address: '' };
-
   openCategoryModal() {
     this.catForm = { name: '', description: '', color: '#3062ea' };
     this.showCategoryModal.set(true);
@@ -515,7 +477,6 @@ export class CategorySupplierComponent {
       error: () => this.toast.error('Erro ao criar categoria')
     });
   }
-
   openSupplierModal() {
     this.supForm = { name: '', cnpj_cpf: '', contact_person: '', email: '', phone: '', address: '' };
     this.showSupplierModal.set(true);
